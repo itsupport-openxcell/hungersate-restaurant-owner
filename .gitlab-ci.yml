@@ -17,8 +17,7 @@ build:
 deploy_dev:
   stage: deploy
   extends: .deploy_static
-  artifacts:
-    paths: 
-     - dist/
+  variables:
+    BUILD_PATH: dist
   only:
     - development    
