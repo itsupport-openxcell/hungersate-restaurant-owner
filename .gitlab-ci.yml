@@ -6,7 +6,7 @@ stages:
    - deploy
 
 variables:
-   PROJECT: 'consumer'
+   PROJECT: 'restaurant-owner'
    TECHNOLOGY: 'nextjs'
 
 build:
