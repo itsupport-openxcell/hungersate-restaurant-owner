@@ -1,23 +1,28 @@
 include:
-  remote: 'https://${CI_SERVER_HOST}/public-resources/gitlab-ci/-/raw/master/templates/build.yaml'
+   remote: 'https://${CI_SERVER_HOST}/public-resources/gitlab-ci/-/raw/master/templates/build.yaml'
+
 stages:
-  - build
-  - deploy
+   - build
+   - deploy
+
 variables:
-  NGINX_PATH: "/home/ubuntu/docker-stack/nginx_conf/react"
-  PROJECT: "restaurant-owner" 
-build: 
+   PROJECT: 'consumer'
+   TECHNOLOGY: 'nextjs'
+
+build:
   stage: build
-  image:
-    name: node:20-alpine
-  extends: .build_static    
-  artifacts:
-    paths: 
-     - dist/*
-deploy_dev:
-  stage: deploy
-  extends: .deploy_static
+  extends: .build
   variables:
-    BUILD_PATH: dist
+    BUILD_ARGS: "--build-arg APP_NAME=${PROJECT} --build-arg NODE_ENV=${CI_COMMIT_REF_NAME}"
   only:
-    - development    
+    - development
+
+deploy_dev:
+   stage: deploy
+   extends: .deploy_devspace
+   environment:
+      url: https://$PROJECT.$DEV_BASE_DOMAIN
+   variables:
+      CONT_PORT: '3000'
+   only:
+     - development
