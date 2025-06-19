@@ -1,32 +1,53 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/AuthContext"
-import AuthPage from "@/components/auth/AuthPage"
-import CreativeLoader from "@/components/CreativeLoader"
+import { useState, useEffect } from "react"
+import WelcomePage from "@/components/welcome-page"
+import OtpPage from "@/components/otp-page"
+import DashboardPage from "@/components/dashboard-page"
 
-export default function HomePage() {
-  const { user, isLoading } = useAuth()
-  const router = useRouter()
+type AppState = "welcome" | "otp" | "dashboard"
 
+export default function App() {
+  const [currentPage, setCurrentPage] = useState<AppState>("welcome")
+  const [phoneNumber, setPhoneNumber] = useState("")
+
+  // Add useEffect to handle logout event
   useEffect(() => {
-    if (!isLoading && user) {
-      if (user.profileCompleted) {
-        router.push("/dashboard")
-      } else {
-        router.push("/profile-setup")
-      }
+    const handleRedirectToLogin = () => {
+      setCurrentPage("welcome")
+      setPhoneNumber("")
     }
-  }, [user, isLoading, router])
 
-  if (isLoading) {
-    return <CreativeLoader />
+    window.addEventListener("redirectToLogin", handleRedirectToLogin)
+
+    return () => {
+      window.removeEventListener("redirectToLogin", handleRedirectToLogin)
+    }
+  }, [])
+
+  const handleLogin = (phone: string) => {
+    setPhoneNumber(phone)
+    setCurrentPage("otp")
   }
 
-  if (!user) {
-    return <AuthPage />
+  const handleOtpVerify = (otp: string) => {
+    // In a real app, you would verify the OTP with your backend
+    console.log("OTP verified:", otp)
+    setCurrentPage("dashboard")
   }
 
-  return <CreativeLoader />
+  const handleBack = () => {
+    setCurrentPage("welcome")
+  }
+
+  switch (currentPage) {
+    case "welcome":
+      return <WelcomePage onLogin={handleLogin} />
+    case "otp":
+      return <OtpPage phoneNumber={phoneNumber} onVerify={handleOtpVerify} onBack={handleBack} />
+    case "dashboard":
+      return <DashboardPage />
+    default:
+      return <WelcomePage onLogin={handleLogin} />
+  }
 }

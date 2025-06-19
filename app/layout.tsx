@@ -1,30 +1,20 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { AuthProvider } from "@/contexts/AuthContext"
-import { NotificationProvider } from "@/contexts/NotificationContext"
-
-const inter = Inter({ subsets: ["latin"] })
+import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "HungerSate - Restaurant Management",
-  description: "Complete restaurant management solution",
-    generator: 'v0.dev'
+  title: 'Hungersate Website',
+  description: 'Created with React Js and Tailwind CSS',
+  generator: 'React Js and Tailwind CSS',
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <AuthProvider>
-          <NotificationProvider>{children}</NotificationProvider>
-        </AuthProvider>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
