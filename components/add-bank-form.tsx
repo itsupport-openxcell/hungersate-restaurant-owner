@@ -112,7 +112,6 @@ export default function AddBankForm({ isOpen, onClose, onSave }: AddBankFormProp
             <ArrowLeft className="w-6 h-6" />
           </button>
           <h1 className="text-xl font-bold text-white">Add Bank Account</h1>
-          <div className="text-sm text-white/80">9:41</div>
         </div>
       </div>
 

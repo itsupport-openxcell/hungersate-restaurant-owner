@@ -27,6 +27,19 @@ interface ProfileData {
   pincode: string
 }
 
+const availableCuisines = [
+  "Indian",
+  "Chinese",
+  "Italian",
+  "Mexican",
+  "Thai",
+  "Arabian",
+  "Mughlai",
+  "Continental",
+  "Japanese",
+  "Korean",
+]
+
 export default function ProfileManagement({ isOpen, onClose }: ProfileManagementProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -46,19 +59,6 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
 
   const [editData, setEditData] = useState<ProfileData>(profileData)
 
-  const availableCuisines = [
-    "Indian",
-    "Chinese",
-    "Italian",
-    "Mexican",
-    "Thai",
-    "Arabian",
-    "Mughlai",
-    "Continental",
-    "Japanese",
-    "Korean",
-  ]
-
   const handleInputChange = (field: keyof ProfileData, value: string) => {
     setEditData((prev) => ({ ...prev, [field]: value }))
   }
@@ -74,7 +74,6 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
 
   const handleSave = async () => {
     setIsSaving(true)
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500))
     setProfileData(editData)
     setIsEditing(false)
@@ -88,38 +87,64 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
 
   if (!isOpen) return null
 
+  const renderField = (
+    label: string,
+    id: keyof ProfileData,
+    icon?: React.ReactNode,
+    inputType: string = "text"
+  ) => (
+    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <Label htmlFor={id} className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+        {icon}
+        {label}
+      </Label>
+      {isEditing ? (
+        <Input
+          id={id}
+          type={inputType}
+          value={editData[id] as string}
+          onChange={(e) => handleInputChange(id, e.target.value)}
+          className="mt-2 h-12 border-2 border-gray-200 focus:border-blue-500 rounded-lg"
+        />
+      ) : (
+        <p className="mt-2 text-lg font-semibold text-gray-900">{profileData[id]}</p>
+      )}
+    </div>
+  )
+
   return (
     <div className="fixed left-80 top-0 right-0 bottom-0 bg-white z-50 shadow-xl border-l border-gray-200 flex flex-col">
-      {/* Header */}
       <div className="bg-white shadow-sm p-4 pt-12 flex-shrink-0 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <button
             onClick={onClose}
+            title="Close"
+            aria-label="Close"
             className="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold text-gray-800">Profile Management</h1>
-          <div className="text-sm text-gray-500">9:41</div>
         </div>
       </div>
 
-      {/* Content - Scrollable */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4">
-          {/* Enhanced Logo Section */}
+          {/* Logo Section */}
           <div className="flex flex-col items-center mb-8 bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-8 mx-4">
             <div className="relative">
               <div className="w-32 h-32 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
-                <div className="text-white font-bold text-xl">
-                  <div className="text-center">
-                    <div className="text-lg">bon</div>
-                    <div className="text-lg">ton</div>
-                  </div>
+                <div className="text-white font-bold text-xl text-center">
+                  <div>bon</div>
+                  <div>ton</div>
                 </div>
               </div>
               {isEditing && (
-                <button className="absolute bottom-2 right-2 w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-700 transition-colors">
+                <button
+                  className="absolute bottom-2 right-2 w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-700"
+                  title="Upload Image"
+                  aria-label="Upload Image"
+                >
                   <Camera className="w-5 h-5 text-white" />
                 </button>
               )}
@@ -131,15 +156,12 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
             </div>
           </div>
 
-          {/* Enhanced Basic Information */}
+          {/* Basic Info */}
           <Card className="mb-6 shadow-lg border-0 bg-gradient-to-br from-white to-gray-50">
             <CardHeader className="pb-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-t-lg">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl font-bold flex items-center gap-2">
-                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                    <Edit className="w-4 h-4" />
-                  </div>
-                  Basic Information
+                  <Edit className="w-4 h-4" /> Basic Information
                 </CardTitle>
                 {!isEditing && (
                   <Button
@@ -148,29 +170,13 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
                     size="sm"
                     className="bg-white/20 hover:bg-white/30 text-white border-white/30"
                   >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
+                    <Edit className="w-4 h-4 mr-1" /> Edit
                   </Button>
                 )}
               </div>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <Label htmlFor="restaurantName" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  Restaurant Name
-                </Label>
-                {isEditing ? (
-                  <Input
-                    id="restaurantName"
-                    value={editData.restaurantName}
-                    onChange={(e) => handleInputChange("restaurantName", e.target.value)}
-                    className="mt-2 h-12 border-2 border-gray-200 focus:border-red-500 rounded-lg"
-                  />
-                ) : (
-                  <p className="mt-2 text-lg font-semibold text-gray-900">{profileData.restaurantName}</p>
-                )}
-              </div>
+              {renderField("Restaurant Name", "restaurantName", <div className="w-2 h-2 bg-red-500 rounded-full"></div>)}
 
               <div className="bg-white rounded-xl p-4 shadow-sm">
                 <Label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -183,11 +189,10 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
                       <button
                         key={cuisine}
                         onClick={() => handleCuisineToggle(cuisine)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                          editData.cuisineTypes.includes(cuisine)
-                            ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md transform scale-105"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-sm"
-                        }`}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${editData.cuisineTypes.includes(cuisine)
+                          ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md transform scale-105"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-sm"}`}
+                        title={cuisine}
                       >
                         {cuisine}
                       </button>
@@ -207,30 +212,11 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
                 )}
               </div>
 
-              <div className="bg-white rounded-xl p-4 shadow-sm">
-                <Label
-                  htmlFor="establishmentYear"
-                  className="text-sm font-semibold text-gray-700 flex items-center gap-2"
-                >
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Establishment Year
-                </Label>
-                {isEditing ? (
-                  <Input
-                    id="establishmentYear"
-                    type="number"
-                    value={editData.establishmentYear}
-                    onChange={(e) => handleInputChange("establishmentYear", e.target.value)}
-                    className="mt-2 h-12 border-2 border-gray-200 focus:border-red-500 rounded-lg"
-                  />
-                ) : (
-                  <p className="mt-2 text-lg font-semibold text-gray-900">{profileData.establishmentYear}</p>
-                )}
-              </div>
+              {renderField("Establishment Year", "establishmentYear", <div className="w-2 h-2 bg-blue-500 rounded-full"></div>, "number")}
             </CardContent>
           </Card>
 
-          {/* Enhanced Contact Details */}
+          {/* Contact Info */}
           <Card className="mb-6 shadow-lg border-0 bg-gradient-to-br from-white to-blue-50">
             <CardHeader className="pb-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
               <CardTitle className="text-xl font-bold flex items-center gap-2">
@@ -241,33 +227,13 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 p-6">
-              {[
-                { key: "phoneNumber", label: "Phone Number", icon: "📱", color: "green" },
-                { key: "emailAddress", label: "Email Address", icon: "✉️", color: "blue" },
-                { key: "website", label: "Website", icon: "🌐", color: "purple" },
-              ].map(({ key, label, icon, color }) => (
-                <div key={key} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                  <Label htmlFor={key} className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <span className="text-lg">{icon}</span>
-                    {label}
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id={key}
-                      type={key === "emailAddress" ? "email" : "text"}
-                      value={editData[key as keyof ProfileData] as string}
-                      onChange={(e) => handleInputChange(key as keyof ProfileData, e.target.value)}
-                      className="mt-2 h-12 border-2 border-gray-200 focus:border-blue-500 rounded-lg"
-                    />
-                  ) : (
-                    <p className="mt-2 text-lg font-semibold text-gray-900">{profileData[key as keyof ProfileData]}</p>
-                  )}
-                </div>
-              ))}
+              {renderField("Phone Number", "phoneNumber", <span className="text-lg">📱</span>)}
+              {renderField("Email Address", "emailAddress", <span className="text-lg">✉️</span>, "email")}
+              {renderField("Website", "website", <span className="text-lg">🌐</span>)}
             </CardContent>
           </Card>
 
-          {/* Enhanced Address */}
+          {/* Address Info */}
           <Card className="mb-6 shadow-lg border-0 bg-gradient-to-br from-white to-green-50">
             <CardHeader className="pb-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-t-lg">
               <CardTitle className="text-xl font-bold flex items-center gap-2">
@@ -278,101 +244,20 @@ export default function ProfileManagement({ isOpen, onClose }: ProfileManagement
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 p-6">
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <Label htmlFor="addressLine1" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Address Line 1
-                </Label>
-                {isEditing ? (
-                  <Input
-                    id="addressLine1"
-                    value={editData.addressLine1}
-                    onChange={(e) => handleInputChange("addressLine1", e.target.value)}
-                    className="mt-2 h-12 border-2 border-gray-200 focus:border-green-500 rounded-lg"
-                  />
-                ) : (
-                  <p className="mt-2 text-lg font-semibold text-gray-900">{profileData.addressLine1}</p>
-                )}
-              </div>
-
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <Label htmlFor="addressLine2" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  Address Line 2
-                </Label>
-                {isEditing ? (
-                  <Input
-                    id="addressLine2"
-                    value={editData.addressLine2}
-                    onChange={(e) => handleInputChange("addressLine2", e.target.value)}
-                    className="mt-2 h-12 border-2 border-gray-200 focus:border-green-500 rounded-lg"
-                  />
-                ) : (
-                  <p className="mt-2 text-lg font-semibold text-gray-900">{profileData.addressLine2}</p>
-                )}
-              </div>
-
+              {renderField("Address Line 1", "addressLine1", <div className="w-2 h-2 bg-green-500 rounded-full"></div>)}
+              {renderField("Address Line 2", "addressLine2", <div className="w-2 h-2 bg-green-400 rounded-full"></div>)}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                  <Label htmlFor="city" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <span className="text-sm">🏙️</span>
-                    City
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id="city"
-                      value={editData.city}
-                      onChange={(e) => handleInputChange("city", e.target.value)}
-                      className="mt-2 h-12 border-2 border-gray-200 focus:border-green-500 rounded-lg"
-                    />
-                  ) : (
-                    <p className="mt-2 text-lg font-semibold text-gray-900">{profileData.city}</p>
-                  )}
-                </div>
-
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                  <Label htmlFor="state" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <span className="text-sm">🗺️</span>
-                    State
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id="state"
-                      value={editData.state}
-                      onChange={(e) => handleInputChange("state", e.target.value)}
-                      className="mt-2 h-12 border-2 border-gray-200 focus:border-green-500 rounded-lg"
-                    />
-                  ) : (
-                    <p className="mt-2 text-lg font-semibold text-gray-900">{profileData.state}</p>
-                  )}
-                </div>
+                {renderField("City", "city", <span className="text-sm">🏙️</span>)}
+                {renderField("State", "state", <span className="text-sm">🗺️</span>)}
               </div>
-
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <Label htmlFor="pincode" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <span className="text-sm">📮</span>
-                  Pincode
-                </Label>
-                {isEditing ? (
-                  <Input
-                    id="pincode"
-                    value={editData.pincode}
-                    onChange={(e) => handleInputChange("pincode", e.target.value)}
-                    className="mt-2 h-12 border-2 border-gray-200 focus:border-green-500 rounded-lg"
-                  />
-                ) : (
-                  <p className="mt-2 text-lg font-semibold text-gray-900">{profileData.pincode}</p>
-                )}
-              </div>
+              {renderField("Pincode", "pincode", <span className="text-sm">📮</span>)}
             </CardContent>
           </Card>
 
-          {/* Bottom padding for scrolling */}
           <div className="pb-20" />
         </div>
       </div>
 
-      {/* Enhanced Fixed Save/Cancel Buttons */}
       {isEditing && (
         <div className="bg-gradient-to-r from-white to-gray-50 border-t border-gray-200 p-4 flex-shrink-0 shadow-lg">
           <div className="flex gap-3">

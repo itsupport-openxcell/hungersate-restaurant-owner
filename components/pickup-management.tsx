@@ -113,16 +113,14 @@ export default function PickupManagement({ isOpen, onClose }: PickupManagementPr
   return (
     <div className="fixed left-80 top-0 right-0 bottom-0 bg-white z-50 shadow-xl border-l border-gray-200 flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-500 to-red-600 shadow-lg p-4 pt-12 flex-shrink-0">
+      <div className="bg-white shadow-sm p-4 pt-12 flex-shrink-0 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <button
             onClick={onClose}
-            className="text-white hover:text-red-100 p-2 hover:bg-white/10 rounded-lg transition-colors"
+            className="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold text-white">🕒 Pickup Management</h1>
-          <div className="text-sm text-red-100 bg-white/10 px-3 py-1 rounded-full">9:41</div>
+          <h1 className="text-xl font-bold text-gray-800">🕒 Pickup Management</h1>
         </div>
       </div>
 
@@ -198,11 +196,10 @@ export default function PickupManagement({ isOpen, onClose }: PickupManagementPr
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-sm font-bold px-3 py-1 rounded-full ${
-                            daySchedule.isOpen
-                              ? "text-green-700 bg-gradient-to-r from-green-100 to-emerald-100"
-                              : "text-red-700 bg-gradient-to-r from-red-100 to-pink-100"
-                          }`}
+                          className={`text-sm font-bold px-3 py-1 rounded-full ${daySchedule.isOpen
+                            ? "text-green-700 bg-gradient-to-r from-green-100 to-emerald-100"
+                            : "text-red-700 bg-gradient-to-r from-red-100 to-pink-100"
+                            }`}
                         >
                           {daySchedule.isOpen ? "🟢 Open" : "🔴 Closed"}
                         </span>

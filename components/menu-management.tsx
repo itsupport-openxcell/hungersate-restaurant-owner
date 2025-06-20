@@ -2,20 +2,14 @@
 
 import { useState } from "react"
 import {
-  ArrowLeft,
   Search,
   Plus,
   Filter,
   Edit,
-  Trash2,
   ChevronLeft,
   ChevronRight,
   Camera,
   X,
-  Star,
-  TrendingUp,
-  Eye,
-  EyeOff,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -43,9 +37,6 @@ interface MenuItem {
   status: MenuStatus
   image: string
   isAvailable: boolean
-  rating?: number
-  orders?: number
-  preparationTime?: string
 }
 
 interface MenuFilters {
@@ -58,6 +49,21 @@ interface MenuFilters {
   }
 }
 
+// Add this helper component above the main export
+function AvailabilityBadge({ isAvailable }: { isAvailable: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold
+        ${isAvailable
+          ? "bg-green-100 text-green-800 border border-green-200"
+          : "bg-red-100 text-red-800 border border-red-200"
+        }`}
+    >
+      {isAvailable ? "Available" : "Unavailable"}
+    </span>
+  )
+}
+
 export default function MenuManagement({ isOpen, onClose }: MenuManagementProps) {
   const [activeTab, setActiveTab] = useState<MenuTab>("All")
   const [searchQuery, setSearchQuery] = useState("")
@@ -67,6 +73,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
+  const [loading, setLoading] = useState(false)
 
   const [filters, setFilters] = useState<MenuFilters>({
     category: "",
@@ -87,9 +94,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       status: "Available",
       image: "/images/paneer-tikka.png",
       isAvailable: true,
-      rating: 4.5,
-      orders: 245,
-      preparationTime: "15 mins",
     },
     {
       id: "2",
@@ -101,9 +105,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       status: "Available",
       image: "/images/paneer-tikka.png",
       isAvailable: true,
-      rating: 4.8,
-      orders: 189,
-      preparationTime: "20 mins",
     },
     {
       id: "3",
@@ -115,9 +116,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       status: "Available",
       image: "/images/chana-masala.png",
       isAvailable: true,
-      rating: 4.3,
-      orders: 156,
-      preparationTime: "18 mins",
     },
     {
       id: "4",
@@ -129,9 +127,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       status: "Available",
       image: "/images/aloo-gobi.png",
       isAvailable: true,
-      rating: 4.1,
-      orders: 98,
-      preparationTime: "16 mins",
     },
     {
       id: "5",
@@ -143,9 +138,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       status: "Available",
       image: "/images/biryani.png",
       isAvailable: true,
-      rating: 4.7,
-      orders: 312,
-      preparationTime: "25 mins",
     },
     {
       id: "6",
@@ -156,10 +148,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       cuisine: "Indian",
       status: "Available",
       image: "/images/dal-tadka.png",
-      isAvailable: true,
-      rating: 4.4,
-      orders: 203,
-      preparationTime: "12 mins",
+      isAvailable: false,
     },
     {
       id: "7",
@@ -170,10 +159,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       cuisine: "Indian",
       status: "Available",
       image: "/images/food-placeholder.png",
-      isAvailable: true,
-      rating: 4.6,
-      orders: 87,
-      preparationTime: "5 mins",
+      isAvailable: false,
     },
     {
       id: "8",
@@ -185,9 +171,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       status: "Available",
       image: "/images/food-placeholder.png",
       isAvailable: true,
-      rating: 4.2,
-      orders: 421,
-      preparationTime: "3 mins",
     },
   ])
 
@@ -236,21 +219,15 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       prev.map((item) =>
         item.id === itemId
           ? {
-              ...item,
-              isAvailable: !item.isAvailable,
-              status: !item.isAvailable ? "Available" : "Unavailable",
-            }
+            ...item,
+            isAvailable: !item.isAvailable,
+            status: !item.isAvailable ? "Available" : "Unavailable",
+          }
           : item,
       ),
     )
     const item = menuItems.find((item) => item.id === itemId)
     showToastMessage(`${item?.name} ${item?.isAvailable ? "marked unavailable" : "marked available"}`)
-  }
-
-  const handleDeleteItem = (itemId: string) => {
-    const item = menuItems.find((item) => item.id === itemId)
-    setMenuItems((prev) => prev.filter((item) => item.id !== itemId))
-    showToastMessage(`${item?.name} deleted successfully`, "error")
   }
 
   const handleEditItem = (item: MenuItem) => {
@@ -293,7 +270,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
               onClick={onClose}
               className="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <ArrowLeft className="w-6 h-6" />
             </button>
             <div className="text-center">
               <h1 className="text-xl font-bold text-gray-800">Menu Management</h1>
@@ -308,42 +284,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
           </div>
         </div>
 
-        {/* Enhanced Stats Bar */}
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 border-b border-gray-200 p-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
-                  <TrendingUp className="w-6 h-6 text-green-600" />
-                  {filteredItems.length}
-                </div>
-                <div className="text-xs text-gray-500 font-medium">Menu Items</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
-                  <Eye className="w-6 h-6 text-blue-600" />
-                  {menuItems.filter((item) => item.isAvailable).length}
-                </div>
-                <div className="text-xs text-gray-500 font-medium">Available</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
-                  <EyeOff className="w-6 h-6 text-red-600" />
-                  {menuItems.filter((item) => !item.isAvailable).length}
-                </div>
-                <div className="text-xs text-gray-500 font-medium">Unavailable</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
-                  <Star className="w-6 h-6 text-yellow-500" />
-                  4.5
-                </div>
-                <div className="text-xs text-gray-500 font-medium">Avg Rating</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Enhanced Tabs */}
         <div className="bg-white border-b border-gray-200 flex-shrink-0">
           <div className="flex overflow-x-auto">
@@ -354,11 +294,10 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                   setActiveTab(tab)
                   setCurrentPage(1)
                 }}
-                className={`flex-shrink-0 py-3 px-4 text-center font-medium whitespace-nowrap transition-colors ${
-                  activeTab === tab
-                    ? "text-red-500 border-b-3 border-red-500 bg-red-50"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
+                className={`flex-shrink-0 py-3 px-4 text-center font-medium whitespace-nowrap transition-colors ${activeTab === tab
+                  ? "text-red-500 border-b-3 border-red-500 bg-red-50"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   {tab}
@@ -401,8 +340,10 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
             <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Category</Label>
+                  <Label className="text-sm font-medium text-gray-700" htmlFor="filter-category">Category</Label>
                   <select
+                    id="filter-category"
+                    title="Filter by category"
                     value={filters.category}
                     onChange={(e) => {
                       setFilters({ ...filters, category: e.target.value })
@@ -420,8 +361,10 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Cuisine</Label>
+                  <Label className="text-sm font-medium text-gray-700" htmlFor="filter-cuisine">Cuisine</Label>
                   <select
+                    id="filter-cuisine"
+                    title="Filter by cuisine"
                     value={filters.cuisine}
                     onChange={(e) => {
                       setFilters({ ...filters, cuisine: e.target.value })
@@ -441,8 +384,10 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Status</Label>
+                  <Label className="text-sm font-medium text-gray-700" htmlFor="filter-status">Status</Label>
                   <select
+                    id="filter-status"
+                    title="Filter by status"
                     value={filters.status}
                     onChange={(e) => {
                       setFilters({ ...filters, status: e.target.value })
@@ -458,8 +403,9 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Min Price (₹)</Label>
+                  <Label className="text-sm font-medium text-gray-700" htmlFor="filter-price-min">Min Price (₹)</Label>
                   <Input
+                    id="filter-price-min"
                     type="number"
                     placeholder="0"
                     value={filters.priceRange.min}
@@ -472,8 +418,9 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Max Price (₹)</Label>
+                  <Label className="text-sm font-medium text-gray-700" htmlFor="filter-price-max">Max Price (₹)</Label>
                   <Input
+                    id="filter-price-max"
                     type="number"
                     placeholder="1000"
                     value={filters.priceRange.max}
@@ -484,6 +431,33 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                     className="h-10"
                   />
                 </div>
+              </div>
+
+              {/* Add Clear and Apply Filters buttons */}
+              <div className="flex gap-3 justify-end pt-2">
+                <Button
+                  variant="outline"
+                  className="border-red-300 text-red-600 hover:bg-red-50"
+                  onClick={() => {
+                    setFilters({
+                      category: "",
+                      cuisine: "",
+                      status: "",
+                      priceRange: { min: "", max: "" },
+                    })
+                    setCurrentPage(1)
+                  }}
+                  title="Clear all filters"
+                >
+                  Clear Filters
+                </Button>
+                <Button
+                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
+                  onClick={() => setShowFilters(false)}
+                  title="Apply filters"
+                >
+                  Apply Filters
+                </Button>
               </div>
             </div>
           )}
@@ -522,21 +496,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                         <div className="absolute top-3 left-3">
                           <Badge className={`text-xs ${getStatusColor(item.status)} shadow-md`}>{item.status}</Badge>
                         </div>
-                        <div className="absolute top-3 right-3">
-                          <div className="bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 shadow-md">
-                            <div className="flex items-center gap-1">
-                              <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                              <span className="text-xs font-medium text-gray-800">{item.rating}</span>
-                            </div>
-                          </div>
-                        </div>
-                        {item.preparationTime && (
-                          <div className="absolute bottom-3 left-3">
-                            <div className="bg-black/70 text-white text-xs px-2 py-1 rounded-lg">
-                              ⏱️ {item.preparationTime}
-                            </div>
-                          </div>
-                        )}
                       </div>
 
                       {/* Enhanced Item Details */}
@@ -559,30 +518,19 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
 
                         <div className="flex items-center justify-between mb-4">
                           <div className="text-2xl font-bold text-gray-900">₹{item.price}</div>
-                          {item.orders && (
-                            <div className="text-right">
-                              <div className="text-sm font-medium text-gray-700">{item.orders} orders</div>
-                              <div className="text-xs text-gray-500">this month</div>
-                            </div>
-                          )}
                         </div>
 
                         {/* Enhanced Availability Toggle */}
-                        <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between mb-4 p-3 bg-neutral-200 rounded-lg">
                           <div className="flex items-center gap-2">
                             <Switch
                               checked={item.isAvailable}
                               onCheckedChange={() => handleToggleAvailability(item.id)}
-                              className="data-[state=checked]:bg-green-500"
+                              className="data-[state=checked]:bg-red-500 bg-neutral-400 border border-neutral-400"
                             />
-                            <span
-                              className={`text-sm font-medium ${item.isAvailable ? "text-green-700" : "text-red-700"}`}
-                            >
-                              {item.isAvailable ? "Available" : "Unavailable"}
-                            </span>
+                            <AvailabilityBadge isAvailable={item.isAvailable} />
                           </div>
                         </div>
-
                         {/* Enhanced Action Buttons */}
                         <div className="flex gap-2">
                           <Button
@@ -593,15 +541,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                           >
                             <Edit className="w-4 h-4 mr-1" />
                             Edit
-                          </Button>
-                          <Button
-                            onClick={() => handleDeleteItem(item.id)}
-                            variant="outline"
-                            size="sm"
-                            className="flex-1 h-9 text-red-600 border-red-200 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Delete
                           </Button>
                         </div>
                       </div>
@@ -647,17 +586,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
             </div>
           </div>
         )}
-
-        {/* Floating Add Button */}
-        <div className="fixed bottom-6 right-6">
-          <Button
-            onClick={() => setShowAddForm(true)}
-            size="lg"
-            className="w-16 h-16 rounded-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300"
-          >
-            <Plus className="w-8 h-8" />
-          </Button>
-        </div>
       </div>
 
       {/* Enhanced Add/Edit Menu Item Forms */}
@@ -691,13 +619,12 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       {/* Enhanced Toast Notification */}
       {showToast.show && (
         <div
-          className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-fade-in ${
-            showToast.type === "success"
-              ? "bg-green-500 text-white"
-              : showToast.type === "error"
-                ? "bg-red-500 text-white"
-                : "bg-blue-500 text-white"
-          }`}
+          className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-fade-in ${showToast.type === "success"
+            ? "bg-green-500 text-white"
+            : showToast.type === "error"
+              ? "bg-red-500 text-white"
+              : "bg-blue-500 text-white"
+            }`}
         >
           <span className="font-medium">{showToast.message}</span>
           <button
@@ -732,8 +659,7 @@ function MenuItemForm({ isOpen, onClose, onSave, item, isEdit, categories, cuisi
     cuisine: item?.cuisine || "",
     image: item?.image || "",
     isAvailable: item?.isAvailable ?? true,
-    status: (item?.status as MenuStatus) || "Available",
-    preparationTime: item?.preparationTime || "",
+    status: (item?.status as MenuStatus) || "Available"
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -859,19 +785,6 @@ function MenuItemForm({ isOpen, onClose, onSave, item, isEdit, categories, cuisi
                       className="mt-1 h-12"
                     />
                     {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="prepTime" className="text-sm font-medium text-gray-700">
-                      Prep Time
-                    </Label>
-                    <Input
-                      id="prepTime"
-                      value={formData.preparationTime}
-                      onChange={(e) => handleInputChange("preparationTime", e.target.value)}
-                      placeholder="e.g., 15 mins"
-                      className="mt-1 h-12"
-                    />
                   </div>
                 </div>
 

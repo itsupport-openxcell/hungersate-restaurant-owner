@@ -24,8 +24,6 @@ export interface FilterOptions {
     maxAmount: string
   }
   company: string
-  status: string
-  transactionType: string
 }
 
 export default function TransactionFilter({ isOpen, onClose, onApplyFilter, currentFilters }: TransactionFilterProps) {
@@ -58,9 +56,7 @@ export default function TransactionFilter({ isOpen, onClose, onApplyFilter, curr
     const resetFilters: FilterOptions = {
       dateRange: { startDate: "", endDate: "" },
       amountRange: { minAmount: "", maxAmount: "" },
-      company: "",
-      status: "",
-      transactionType: "",
+      company: ""
     }
     setFilters(resetFilters)
     onApplyFilter(resetFilters)
@@ -177,52 +173,6 @@ export default function TransactionFilter({ isOpen, onClose, onApplyFilter, curr
                     <option value="Hungersate Pvt Ltd">Hungersate Pvt Ltd</option>
                     <option value="Spice Garden">Spice Garden</option>
                     <option value="Food Delivery Co">Food Delivery Co</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Transaction Status */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-700">Status</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="relative">
-                  <select
-                    value={filters.status}
-                    onChange={(e) => handleFilterChange("status", e.target.value)}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 appearance-none"
-                  >
-                    <option value="">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="pending">Pending</option>
-                    <option value="failed">Failed</option>
-                    <option value="processing">Processing</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Transaction Type */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-700">Transaction Type</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="relative">
-                  <select
-                    value={filters.transactionType}
-                    onChange={(e) => handleFilterChange("transactionType", e.target.value)}
-                    className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 appearance-none"
-                  >
-                    <option value="">All Types</option>
-                    <option value="payment">Payment Received</option>
-                    <option value="refund">Refund</option>
-                    <option value="settlement">Settlement</option>
-                    <option value="commission">Commission</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>

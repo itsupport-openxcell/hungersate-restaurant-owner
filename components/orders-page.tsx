@@ -2,19 +2,12 @@
 
 import { useState } from "react"
 import {
-  ArrowLeft,
   X,
   ChevronLeft,
   ChevronRight,
   Search,
   Filter,
-  Calendar,
-  DollarSign,
   Clock,
-  MapPin,
-  Phone,
-  Star,
-  TrendingUp,
   Package,
   Timer,
   CheckCircle,
@@ -43,18 +36,12 @@ interface OrderItem {
 interface Order {
   id: string
   customerName: string
-  customerLocation?: string
   orderId: string
   amount: number
   itemCount: number
   items: OrderItem[]
   status: OrderStatus
-  avatar: string
   timestamp?: string
-  date: string
-  time: string
-  rating?: number
-  phone?: string
 }
 
 interface OrderFilters {
@@ -74,7 +61,6 @@ interface OrderFilters {
 export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: OrdersPageProps) {
   const [activeTab, setActiveTab] = useState<OrderTab>(initialTab)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState("")
   const [showFilters, setShowFilters] = useState(false)
   const itemsPerPage = 4
@@ -92,7 +78,6 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
       {
         id: "1",
         customerName: "Rahul Sharma",
-        customerLocation: "Bandra West, Mumbai",
         orderId: "ORD-1001",
         amount: 568,
         itemCount: 5,
@@ -104,73 +89,50 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
           { name: "Vegetable Biryani", quantity: 1, price: 350, image: "/images/biryani.png" },
         ],
         status: "new",
-        avatar: "RS",
-        date: "2024-01-15",
-        time: "10:30 AM",
-        phone: "+91 98765 43210",
-        rating: 4.5,
       },
       {
         id: "2",
         customerName: "Anita Desai",
-        customerLocation: "Connaught Place, Delhi",
         orderId: "ORD-1002",
         amount: 750,
         itemCount: 3,
         items: [
           { name: "Paneer Butter Masala", quantity: 2, price: 300, image: "/images/paneer-tikka.png" },
-          { name: "Garlic Naan", quantity: 4, price: 60 },
+          { name: "Garlic Naan", quantity: 4, price: 60, image: "/images/food-placeholder.png" },
           { name: "Jeera Rice", quantity: 2, price: 150, image: "/images/biryani.png" },
         ],
         status: "new",
-        avatar: "AD",
-        date: "2024-01-15",
-        time: "11:15 AM",
-        phone: "+91 98765 43211",
-        rating: 4.8,
       },
     ],
     ongoing: [
       {
         id: "6",
         customerName: "Rajesh Patel",
-        customerLocation: "Satellite, Ahmedabad",
         orderId: "ORD-1006",
         amount: 568,
         itemCount: 4,
         items: [
           { name: "Gujarati Thali", quantity: 1, price: 350, image: "/images/food-placeholder.png" },
-          { name: "Dhokla", quantity: 1, price: 120 },
-          { name: "Khandvi", quantity: 1, price: 98 },
+          { name: "Dhokla", quantity: 1, price: 120, image: "/images/food-placeholder.png" },
+          { name: "Khandvi", quantity: 1, price: 98, image: "/images/food-placeholder.png" },
         ],
         status: "preparing",
-        avatar: "RP",
-        date: "2024-01-15",
-        time: "09:30 AM",
-        phone: "+91 98765 43216",
-        rating: 4.3,
       },
     ],
     past: [
       {
         id: "9",
         customerName: "Meera Reddy",
-        customerLocation: "Banjara Hills, Hyderabad",
         orderId: "ORD-1009",
         amount: 568,
         itemCount: 5,
         items: [
           { name: "Hyderabadi Biryani", quantity: 1, price: 450, image: "/images/biryani.png" },
-          { name: "Haleem", quantity: 1, price: 280 },
-          { name: "Double Ka Meetha", quantity: 1, price: 150 },
-          { name: "Irani Chai", quantity: 2, price: 40 },
+          { name: "Haleem", quantity: 1, price: 280, image: "/images/food-placeholder.png" },
+          { name: "Double Ka Meetha", quantity: 1, price: 150, image: "/images/food-placeholder.png" },
+          { name: "Irani Chai", quantity: 2, price: 40, image: "/images/food-placeholder.png" },
         ],
         status: "completed",
-        avatar: "MR",
-        date: "2024-01-14",
-        time: "08:30 PM",
-        phone: "+91 98765 43219",
-        rating: 4.9,
       },
     ],
   })
@@ -181,17 +143,25 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
     type: "success" | "error" | "info"
   }>({ show: false, message: "", type: "success" })
 
+  const [paginationState, setPaginationState] = useState<Record<OrderTab, number>>({
+    new: 1,
+    ongoing: 1,
+    past: 1,
+  })
+
+
+  const setCurrentPage = (page: number) => {
+    setPaginationState((prev) => ({ ...prev, [activeTab]: page }))
+  }
+
+  const currentPage = paginationState[activeTab]
+
   const applyFilters = (orders: Order[]) => {
     return orders.filter((order) => {
       const matchesSearch =
         !searchQuery ||
         order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.customerLocation?.toLowerCase().includes(searchQuery.toLowerCase())
-
-      const matchesDateRange =
-        (!filters.dateRange.startDate || order.date >= filters.dateRange.startDate) &&
-        (!filters.dateRange.endDate || order.date <= filters.dateRange.endDate)
+        order.orderId.toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesAmountRange =
         (!filters.amountRange.minAmount || order.amount >= Number.parseFloat(filters.amountRange.minAmount)) &&
@@ -202,11 +172,8 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
 
       const matchesStatus = !filters.status || order.status === filters.status
 
-      const matchesLocation =
-        !filters.location || order.customerLocation?.toLowerCase().includes(filters.location.toLowerCase())
-
       return (
-        matchesSearch && matchesDateRange && matchesAmountRange && matchesCustomer && matchesStatus && matchesLocation
+        matchesSearch && matchesAmountRange && matchesCustomer && matchesStatus
       )
     })
   }
@@ -231,7 +198,8 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
 
   const handleTabChange = (tab: OrderTab) => {
     setActiveTab(tab)
-    setCurrentPage(1)
+    setShowFilters(false)  // ⬅️ Close filters on tab switch
+    setCurrentPage(1)      // ⬅️ Reset pagination
   }
 
   const handleAcceptOrder = (orderId: string) => {
@@ -278,7 +246,7 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
       return (
         <Button
           onClick={() => handleMarkReady(order.id)}
-          className="w-full h-11 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-lg shadow-md"
+          className="w-full h-11 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-lg shadow-md"
         >
           <Package className="w-4 h-4 mr-2" />
           Mark Ready for Pickup
@@ -312,48 +280,11 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
 
   const activeFilters = getActiveFilters()
 
-  const handleRemoveFilter = (filterKey: string) => {
-    const newFilters = { ...filters }
-    switch (filterKey) {
-      case "dateRange":
-        newFilters.dateRange = { startDate: "", endDate: "" }
-        break
-    }
-    setFilters(newFilters)
-    setCurrentPage(1)
-  }
-
-  const handleClearAllFilters = () => {
-    setFilters({
-      dateRange: { startDate: "", endDate: "" },
-      amountRange: { minAmount: "", maxAmount: "" },
-      customer: "",
-      status: "",
-      location: "",
-    })
-    setSearchQuery("")
-    setCurrentPage(1)
-  }
-
-  const getAvatarColor = (name: string) => {
-    const colors = [
-      "bg-gradient-to-br from-red-400 to-red-500",
-      "bg-gradient-to-br from-blue-400 to-blue-500",
-      "bg-gradient-to-br from-green-400 to-green-500",
-      "bg-gradient-to-br from-yellow-400 to-yellow-500",
-      "bg-gradient-to-br from-purple-400 to-purple-500",
-      "bg-gradient-to-br from-pink-400 to-pink-500",
-      "bg-gradient-to-br from-indigo-400 to-indigo-500",
-      "bg-gradient-to-br from-orange-400 to-orange-500",
-    ]
-    const index = name.charCodeAt(0) % colors.length
-    return colors[index]
-  }
-
   if (!isOpen) return null
 
   return (
     <>
+      {/* Demo loader button, remove in production */}
       <div className="fixed left-80 top-0 right-0 bottom-0 bg-gray-50 z-50 shadow-xl border-l border-gray-200 flex flex-col">
         {/* Enhanced Header */}
         <div className="bg-white shadow-sm p-4 pt-12 flex-shrink-0 border-b border-gray-200">
@@ -361,42 +292,12 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
             <button
               onClick={onClose}
               className="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Close orders panel"
             >
-              <ArrowLeft className="w-6 h-6" />
             </button>
             <div className="text-center">
               <h1 className="text-xl font-bold text-gray-800">Orders Management</h1>
               <p className="text-sm text-gray-500">Track and manage all orders</p>
-            </div>
-            <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">9:41</div>
-          </div>
-        </div>
-
-        {/* Enhanced Summary Bar */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 p-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
-                  <TrendingUp className="w-6 h-6 text-blue-600" />
-                  {currentOrders.length}
-                </div>
-                <div className="text-xs text-gray-500 font-medium">Total Orders</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
-                  <DollarSign className="w-6 h-6 text-green-600" />₹
-                  {currentOrders.reduce((sum, order) => sum + order.amount, 0).toFixed(0)}
-                </div>
-                <div className="text-xs text-gray-500 font-medium">Total Value</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
-                  <Star className="w-6 h-6 text-yellow-500" />
-                  4.6
-                </div>
-                <div className="text-xs text-gray-500 font-medium">Avg Rating</div>
-              </div>
             </div>
           </div>
         </div>
@@ -406,11 +307,10 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
           <div className="flex">
             <button
               onClick={() => handleTabChange("new")}
-              className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
-                activeTab === "new"
-                  ? "text-red-500 border-b-3 border-red-500 bg-red-50"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${activeTab === "new"
+                ? "text-red-500 border-b-3 border-red-500 bg-red-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                }`}
             >
               <div className="flex items-center justify-center gap-2">
                 <Clock className="w-4 h-4" />
@@ -422,11 +322,10 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
             </button>
             <button
               onClick={() => handleTabChange("ongoing")}
-              className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
-                activeTab === "ongoing"
-                  ? "text-blue-500 border-b-3 border-blue-500 bg-blue-50"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${activeTab === "ongoing"
+                ? "text-blue-500 border-b-3 border-blue-500 bg-blue-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                }`}
             >
               <div className="flex items-center justify-center gap-2">
                 <Package className="w-4 h-4" />
@@ -438,11 +337,10 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
             </button>
             <button
               onClick={() => handleTabChange("past")}
-              className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
-                activeTab === "past"
-                  ? "text-green-500 border-b-3 border-green-500 bg-green-50"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${activeTab === "past"
+                ? "text-green-500 border-b-3 border-green-500 bg-green-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                }`}
             >
               <div className="flex items-center justify-center gap-2">
                 <CheckCircle className="w-4 h-4" />
@@ -456,10 +354,91 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
         <div className="bg-white border-b border-gray-100 p-4 flex-shrink-0">
           <div className="flex gap-3 mb-4">
             <div className="relative flex-1">
+              {showFilters && (
+                <div className="mb-6 p-6 border border-gray-200 bg-white rounded-xl shadow-sm">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Filter Orders</h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                      <Input
+                        placeholder="Enter customer name"
+                        value={filters.customer}
+                        onChange={(e) => setFilters({ ...filters, customer: e.target.value })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Order Status</label>
+                      <Input
+                        placeholder="e.g., new, preparing, ready"
+                        value={filters.status}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Min Amount</label>
+                      <Input
+                        type="number"
+                        placeholder="Minimum ₹"
+                        value={filters.amountRange.minAmount}
+                        onChange={(e) =>
+                          setFilters({
+                            ...filters,
+                            amountRange: { ...filters.amountRange, minAmount: e.target.value },
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Max Amount</label>
+                      <Input
+                        type="number"
+                        placeholder="Maximum ₹"
+                        value={filters.amountRange.maxAmount}
+                        onChange={(e) =>
+                          setFilters({
+                            ...filters,
+                            amountRange: { ...filters.amountRange, maxAmount: e.target.value },
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-end gap-3">
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setFilters({
+                          dateRange: { startDate: "", endDate: "" },
+                          amountRange: { minAmount: "", maxAmount: "" },
+                          customer: "",
+                          status: "",
+                          location: "",
+                        })
+                        setShowFilters(false)
+                      }}
+                      className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
+                    >
+                      Clear
+                    </Button>
+                    <Button
+                      onClick={() => setShowFilters(false)}
+                      className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
+                    >
+                      Apply Filters
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
                 type="text"
-                placeholder="Search orders, customers, locations..."
+                placeholder="Search orders, customers..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value)
@@ -471,7 +450,7 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
             <Button
               onClick={() => setShowFilters(!showFilters)}
               variant="outline"
-              className="h-12 px-4 border-gray-300 hover:bg-gray-50"
+              className="h-12 px-4 border-gray-300 hover:bg-red-50 text-red-600"
             >
               <Filter className="w-5 h-5" />
             </Button>
@@ -501,11 +480,14 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                         {/* Customer Info Section */}
                         <div className="flex-1 p-6">
                           <div className="flex items-start gap-4">
-                            {/* Enhanced Avatar */}
                             <div
-                              className={`w-14 h-14 ${getAvatarColor(order.customerName)} rounded-xl flex items-center justify-center shadow-md`}
+                              className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md`}
                             >
-                              <span className="text-white font-bold text-lg">{order.avatar}</span>
+                              <img
+                                src="/images/user.jpg"
+                                alt="Logo"
+                                className="w-full h-full object-contain"
+                              />
                             </div>
 
                             {/* Order Details */}
@@ -513,44 +495,20 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                               <div className="flex items-start justify-between mb-3">
                                 <div>
                                   <h3 className="font-bold text-lg text-gray-900">{order.customerName}</h3>
-                                  <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
-                                    <MapPin className="w-4 h-4" />
-                                    <span>{order.customerLocation}</span>
-                                  </div>
-                                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                                    <div className="flex items-center gap-1">
-                                      <Calendar className="w-4 h-4" />
-                                      {order.date} at {order.time}
-                                    </div>
-                                    {order.phone && (
-                                      <div className="flex items-center gap-1">
-                                        <Phone className="w-4 h-4" />
-                                        {order.phone}
-                                      </div>
-                                    )}
-                                  </div>
+                                  <p className="text-sm text-gray-900">{order.orderId}</p>
                                 </div>
                                 <div className="text-right">
                                   <div className="text-2xl font-bold text-gray-900">₹{order.amount}</div>
-                                  <div className="text-sm text-gray-500">{order.itemCount} Items</div>
-                                  {order.rating && (
-                                    <div className="flex items-center gap-1 mt-1">
-                                      <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                                      <span className="text-sm font-medium text-gray-700">{order.rating}</span>
-                                    </div>
-                                  )}
+                                  <div className="text-sm text-gray-900">{order.itemCount} Items</div>
                                 </div>
                               </div>
 
                               {/* Order ID Badge */}
-                              <div className="flex items-center gap-2 mb-3">
+                              {/* <div className="flex items-center gap-2 mb-3">
                                 <Badge variant="outline" className="text-sm font-mono">
                                   {order.orderId}
                                 </Badge>
-                                {activeTab === "new" && (
-                                  <Badge className="bg-red-100 text-red-800 animate-pulse">🔥 HOT ORDER</Badge>
-                                )}
-                              </div>
+                              </div> */}
 
                               {/* Items Preview with Images */}
                               <div className="mb-4">
@@ -589,7 +547,7 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                                   <div className="flex gap-3">
                                     <Button
                                       onClick={() => handleAcceptOrder(order.id)}
-                                      className="flex-1 h-11 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-lg shadow-md"
+                                      className="flex-1 h-11 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-lg shadow-md"
                                     >
                                       <CheckCircle className="w-4 h-4 mr-2" />
                                       Accept Order
@@ -605,13 +563,12 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                                   </div>
                                   <button
                                     onClick={() => handleViewItems(order)}
-                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
+                                    className="text-red-600 hover:text-red-800 text-sm font-medium underline"
                                   >
                                     View Full Order Details
                                   </button>
                                 </div>
                               )}
-
                               {activeTab === "ongoing" && getStatusButton(order)}
                             </div>
                           </div>
@@ -626,12 +583,11 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
         </div>
 
         {/* Enhanced Pagination */}
-        {totalPages > 1 && (
+        {true && (
           <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">
-                Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, currentOrders.length)} of{" "}
-                {currentOrders.length} orders
+                Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, currentOrders.length)} of {currentOrders.length} orders
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -640,6 +596,7 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                   variant="outline"
                   size="sm"
                   className="h-9 w-9 p-0"
+                  title="Previous page"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
@@ -652,6 +609,7 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                   variant="outline"
                   size="sm"
                   className="h-9 w-9 p-0"
+                  title="Next page"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
@@ -672,17 +630,24 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div
-                      className={`w-14 h-14 ${getAvatarColor(selectedOrder.customerName)} rounded-xl flex items-center justify-center shadow-md`}
+                      className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md`}
                     >
-                      <span className="text-white font-bold text-lg">{selectedOrder.avatar}</span>
+                      <img
+                        src="/images/user.jpg"
+                        alt="Logo"
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                     <div>
                       <h3 className="font-bold text-xl text-gray-900">{selectedOrder.customerName}</h3>
-                      <p className="text-gray-600">{selectedOrder.customerLocation}</p>
                       <p className="text-sm text-gray-500">{selectedOrder.orderId}</p>
                     </div>
                   </div>
-                  <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600">
+                  <button
+                    onClick={() => setSelectedOrder(null)}
+                    className="text-gray-400 hover:text-gray-600"
+                    title="Close details"
+                  >
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -747,7 +712,7 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                         handleAcceptOrder(selectedOrder.id)
                         setSelectedOrder(null)
                       }}
-                      className="flex-1 h-12 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                      className="flex-1 h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
                     >
                       <CheckCircle className="w-4 h-4 mr-2" />
                       Accept Order
@@ -763,18 +728,18 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
       {/* Enhanced Toast Notification */}
       {showToast.show && (
         <div
-          className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-fade-in ${
-            showToast.type === "success"
-              ? "bg-green-500 text-white"
-              : showToast.type === "error"
-                ? "bg-red-500 text-white"
-                : "bg-blue-500 text-white"
-          }`}
+          className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-fade-in ${showToast.type === "success"
+            ? "bg-green-500 text-white"
+            : showToast.type === "error"
+              ? "bg-red-500 text-white"
+              : "bg-blue-500 text-white"
+            }`}
         >
           <span className="font-medium">{showToast.message}</span>
           <button
             onClick={() => setShowToast({ show: false, message: "", type: "success" })}
             className="text-white/80 hover:text-white"
+            title="Close notification"
           >
             <X className="w-4 h-4" />
           </button>

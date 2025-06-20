@@ -12,11 +12,18 @@ interface WelcomePageProps {
 
 export default function WelcomePage({ onLogin }: WelcomePageProps) {
   const [phoneNumber, setPhoneNumber] = useState("")
+  const [error, setError] = useState("")
 
   const handleLogin = () => {
-    if (phoneNumber.trim()) {
-      onLogin(phoneNumber)
+    const trimmedPhone = phoneNumber.trim()
+
+    if (!trimmedPhone) {
+      setError("Please enter your mobile number.")
+      return
     }
+
+    setError("")
+    onLogin(trimmedPhone)
   }
 
   return (
@@ -25,10 +32,11 @@ export default function WelcomePage({ onLogin }: WelcomePageProps) {
         {/* Logo */}
         <div className="mb-8">
           <div className="w-20 h-20 mb-6 mx-auto">
-            <svg viewBox="0 0 100 100" className="w-full h-full fill-white">
-              <path d="M50 10 L70 30 L90 50 L70 70 L50 90 L30 70 L10 50 L30 30 Z M50 25 L60 35 L75 50 L60 65 L50 75 L40 65 L25 50 L40 35 Z" />
-              <circle cx="65" cy="35" r="8" />
-            </svg>
+            <img
+              src="/images/Logo-icon.png"
+              alt="Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
         </div>
 
@@ -47,19 +55,25 @@ export default function WelcomePage({ onLogin }: WelcomePageProps) {
         </div>
 
         {/* Login Form */}
-        <div className="w-full max-w-sm space-y-6">
+        <div className="w-full max-w-sm space-y-4">
           <div className="relative">
             <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
               <Smartphone className="w-5 h-5 text-gray-400" />
             </div>
             <Input
               type="tel"
-              placeholder="Mobile Number"
+              placeholder="Enter your mobile number"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               className="pl-12 h-14 bg-white border-0 rounded-xl text-gray-700 placeholder-gray-400 text-base"
             />
           </div>
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-sm">
+              {error}
+            </div>
+          )}
 
           <Button
             onClick={handleLogin}

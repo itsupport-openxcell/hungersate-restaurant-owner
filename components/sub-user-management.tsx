@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Search, Plus, Trash2, User, Edit, Filter, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Plus, Trash2, User, Edit, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -24,8 +24,6 @@ interface SubUser {
   phone: string
   isActive: boolean
   avatar?: string
-  joinDate: string
-  lastActive: string
 }
 
 export default function SubUserManagement({ isOpen, onClose }: SubUserManagementProps) {
@@ -47,8 +45,6 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
       email: "Rahul.sharma@example.com",
       phone: "+91 987654321",
       isActive: true,
-      joinDate: "2024-01-15",
-      lastActive: "2 hours ago",
     },
     {
       id: "2",
@@ -56,9 +52,7 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
       role: "Chef",
       email: "Vivek.shah@example.com",
       phone: "+91 987654322",
-      isActive: false,
-      joinDate: "2024-01-10",
-      lastActive: "1 day ago",
+      isActive: false
     },
     {
       id: "3",
@@ -66,9 +60,7 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
       role: "Designer",
       email: "Meera.gupta@example.com",
       phone: "+91 987654323",
-      isActive: true,
-      joinDate: "2024-01-20",
-      lastActive: "30 minutes ago",
+      isActive: true
     },
     {
       id: "4",
@@ -76,9 +68,7 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
       role: "Developer",
       email: "Anil.patel@example.com",
       phone: "+91 987654324",
-      isActive: true,
-      joinDate: "2024-01-05",
-      lastActive: "1 hour ago",
+      isActive: true
     },
     {
       id: "5",
@@ -86,9 +76,7 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
       role: "Marketing Specialist",
       email: "Nisha.roy@example.com",
       phone: "+91 987654325",
-      isActive: false,
-      joinDate: "2024-01-25",
-      lastActive: "3 days ago",
+      isActive: false
     },
     {
       id: "6",
@@ -96,9 +84,7 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
       role: "Waiter",
       email: "Kiran.singh@example.com",
       phone: "+91 987654326",
-      isActive: true,
-      joinDate: "2024-02-01",
-      lastActive: "5 minutes ago",
+      isActive: true
     },
     {
       id: "7",
@@ -106,9 +92,7 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
       role: "Cashier",
       email: "Priya.joshi@example.com",
       phone: "+91 987654327",
-      isActive: true,
-      joinDate: "2024-02-05",
-      lastActive: "15 minutes ago",
+      isActive: true
     },
   ])
 
@@ -147,14 +131,6 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
     setShowEditUser(true)
   }
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-  }
-
   const getRoleColor = (role: string) => {
     switch (role.toLowerCase()) {
       case "manager":
@@ -190,53 +166,20 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
     <>
       <div className="fixed left-80 top-0 right-0 bottom-0 bg-white z-50 shadow-xl border-l border-gray-200 flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-500 to-red-600 shadow-lg p-4 pt-12 flex-shrink-0">
+        <div className="bg-white shadow-sm p-4 pt-12 flex-shrink-0 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <button
               onClick={onClose}
-              className="text-white hover:text-red-100 p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-xl font-bold text-white">👥 Sub-User Management</h1>
+            <h1 className="text-xl font-bold text-gray-800">👥 Sub-User Management</h1>
             <button
               onClick={() => setShowAddUser(true)}
-              className="text-white hover:text-red-100 bg-white/10 p-2 rounded-lg hover:bg-white/20 transition-colors"
+              className="bg-gradient-to-r from-red-500 to-red-600 text-white p-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-colors shadow-md"
             >
               <Plus className="w-6 h-6" />
             </button>
-          </div>
-        </div>
-
-        {/* Stats Bar */}
-        <div className="bg-gradient-to-r from-gray-50 to-slate-50 border-b border-gray-200 p-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="text-center bg-white rounded-lg px-4 py-3 shadow-sm border border-gray-100">
-                <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">👥 {statusCounts.total}</div>
-                <div className="text-xs text-gray-500 font-medium">Total Users</div>
-              </div>
-              <div className="text-center bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg px-4 py-3 shadow-sm border border-green-100">
-                <div className="text-2xl font-bold text-green-600 flex items-center gap-1">
-                  🟢 {statusCounts.active}
-                </div>
-                <div className="text-xs text-green-600 font-medium">Active</div>
-              </div>
-              <div className="text-center bg-gradient-to-br from-red-50 to-pink-50 rounded-lg px-4 py-3 shadow-sm border border-red-100">
-                <div className="text-2xl font-bold text-red-600 flex items-center gap-1">
-                  🔴 {statusCounts.inactive}
-                </div>
-                <div className="text-xs text-red-600 font-medium">Inactive</div>
-              </div>
-            </div>
-            <Button
-              onClick={() => setShowFilters(!showFilters)}
-              variant="outline"
-              size="sm"
-              className="text-gray-600 border-gray-300 hover:bg-white hover:shadow-md transition-all"
-            >
-              <Filter className="w-4 h-4 mr-1" />🔍 Filters
-            </Button>
           </div>
         </div>
 
@@ -250,11 +193,10 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
                   setActiveTab(tab)
                   setCurrentPage(1)
                 }}
-                className={`flex-1 py-4 px-4 text-center font-bold transition-all ${
-                  activeTab === tab
-                    ? "text-red-500 border-b-3 border-red-500 bg-gradient-to-t from-red-50 to-white"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
+                className={`flex-1 py-4 px-4 text-center font-bold transition-all ${activeTab === tab
+                  ? "text-red-500 border-b-3 border-red-500 bg-gradient-to-t from-red-50 to-white"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                  }`}
               >
                 {tab === "All" && "📊"} {tab === "Active" && "🟢"} {tab === "Inactive" && "🔴"} {tab}
                 {tab !== "All" && (
@@ -281,6 +223,7 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
                   setCurrentPage(1)
                 }}
                 className="pl-12 h-14 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-200 font-medium"
+                aria-label="Search users"
               />
             </div>
           </div>
@@ -288,16 +231,19 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
           {/* Role Filter */}
           {showFilters && (
             <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2" htmlFor="role-filter">
                 🏷️ Filter by Role
               </label>
               <select
+                id="role-filter"
+                title="Filter by role"
                 value={roleFilter}
                 onChange={(e) => {
                   setRoleFilter(e.target.value as UserRole)
                   setCurrentPage(1)
                 }}
                 className="w-full h-12 px-4 border-2 border-blue-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium shadow-sm"
+                aria-label="Filter by role"
               >
                 <option value="All">All Roles</option>
                 <option value="Manager">👔 Manager</option>
@@ -332,8 +278,12 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4">
                         {/* Avatar */}
-                        <div className="w-16 h-16 bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
-                          <span className="text-white font-bold text-lg">{getInitials(user.name)}</span>
+                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md`}>
+                          <img
+                            src="/images/user.jpg"
+                            alt="Logo"
+                            className="w-full h-full object-contain"
+                          />
                         </div>
 
                         {/* User Info */}
@@ -350,23 +300,11 @@ export default function SubUserManagement({ isOpen, onClose }: SubUserManagement
                               {user.role === "Cashier" && "💰"}
                               {user.role}
                             </Badge>
-                            {user.isActive && (
-                              <Badge
-                                variant="secondary"
-                                className="text-xs bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 font-bold"
-                              >
-                                🟢 Online
-                              </Badge>
-                            )}
+
                           </div>
                           <p className="text-sm text-gray-600 mb-1 font-medium">📧 {user.email}</p>
                           <p className="text-sm text-gray-500 font-medium">📱 {user.phone}</p>
-                          <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
-                            <span className="bg-gray-100 px-2 py-1 rounded-full">📅 Joined: {user.joinDate}</span>
-                            <span className="bg-gray-100 px-2 py-1 rounded-full">
-                              ⏰ Last active: {user.lastActive}
-                            </span>
-                          </div>
+
                         </div>
 
                         {/* Actions */}
@@ -512,8 +450,6 @@ function AddUserModal({ onClose, onAddUser }: AddUserModalProps) {
     if (validateForm()) {
       onAddUser({
         ...formData,
-        joinDate: new Date().toISOString().split("T")[0],
-        lastActive: "Just now",
       })
       onClose()
     }

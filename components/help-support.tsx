@@ -114,24 +114,24 @@ export default function HelpSupport({ isOpen, onClose }: HelpSupportProps) {
   return (
     <div className="fixed left-80 top-0 right-0 bottom-0 bg-gradient-to-br from-gray-50 to-white z-50 shadow-xl border-l border-gray-200 flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-500 to-red-600 shadow-lg p-4 pt-12 flex-shrink-0">
+      <div className="bg-white shadow-sm p-4 pt-12 flex-shrink-0 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <button
             onClick={onClose}
-            className="text-white hover:text-red-100 p-2 hover:bg-white/10 rounded-lg transition-all duration-200"
+            className="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Close help and support"
+            aria-label="Close help and support"
           >
-            <ArrowLeft className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
               <span className="text-white text-lg">🤖</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Help & Support</h1>
-              <p className="text-red-100 text-sm">We're here to help you!</p>
+              <h1 className="text-xl font-bold text-gray-800">Help & Support</h1>
+              <p className="text-xl font-bold text-gray-800">We're here to help you!</p>
             </div>
           </div>
-          <div className="text-sm text-red-100 bg-white/10 px-3 py-1 rounded-full">9:41</div>
         </div>
       </div>
 
@@ -156,11 +156,10 @@ export default function HelpSupport({ isOpen, onClose }: HelpSupportProps) {
                   </div>
                 )}
                 <div
-                  className={`p-4 rounded-2xl shadow-sm ${
-                    message.isBot
-                      ? "bg-white text-gray-800 rounded-tl-md border border-gray-100"
-                      : "bg-gradient-to-r from-red-500 to-red-600 text-white rounded-tr-md shadow-lg"
-                  }`}
+                  className={`p-4 rounded-2xl shadow-sm ${message.isBot
+                    ? "bg-white text-gray-800 rounded-tl-md border border-gray-100"
+                    : "bg-gradient-to-r from-red-500 to-red-600 text-white rounded-tr-md shadow-lg"
+                    }`}
                 >
                   <p className="text-sm leading-relaxed">{message.text}</p>
                 </div>
@@ -208,22 +207,23 @@ export default function HelpSupport({ isOpen, onClose }: HelpSupportProps) {
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-8 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-lg">⚡</span>
-            <h3 className="text-lg font-semibold text-gray-800">Quick Actions</h3>
-          </div>
-          <div className="grid grid-cols-1 gap-3">
-            {quickActions.map((action, index) => (
-              <button
-                key={index}
-                onClick={() => handleQuickAction(action)}
-                className="p-4 text-left bg-gradient-to-r from-gray-50 to-gray-100 hover:from-red-50 hover:to-red-100 rounded-xl border border-gray-200 hover:border-red-200 transition-all duration-200 group"
-              >
-                <span className="text-sm text-gray-800 group-hover:text-red-700 font-medium">{action}</span>
-              </button>
+        <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+          <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2" htmlFor="quick-action-select">
+            🏷️ Quick Actions
+          </label>
+          <select
+            id="quick-action-select"
+            title="Quick Actions"
+            className="w-full h-12 px-4 border-2 border-blue-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium shadow-sm"
+            aria-label="Quick Actions"
+          // ...add onChange handler if needed...
+          >
+            {/* Example options */}
+            <option value="">Select a quick action</option>
+            {quickActions.map((action, idx) => (
+              <option key={idx} value={action}>{action}</option>
             ))}
-          </div>
+          </select>
         </div>
 
         {/* Bottom padding */}
@@ -252,6 +252,7 @@ export default function HelpSupport({ isOpen, onClose }: HelpSupportProps) {
               onClick={() => handleSendMessage(inputMessage)}
               disabled={!inputMessage.trim()}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+              title="Send message"
             >
               <Send className="w-4 h-4 text-white" />
             </button>

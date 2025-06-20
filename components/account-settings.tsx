@@ -74,26 +74,27 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
 
   return (
     <>
+
       <div className="fixed left-80 top-0 right-0 bottom-0 bg-gradient-to-br from-gray-50 to-white z-50 shadow-xl border-l border-gray-200 flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-500 to-red-600 shadow-lg p-4 pt-12 flex-shrink-0">
+        <div className="bg-white shadow-sm p-4 pt-12 flex-shrink-0 border-b border-gray-200">
           <div className="flex items-center justify-between">
+            <ArrowLeft className="w-5 h-5 text-lg" />
             <button
               onClick={onClose}
-              className="text-white hover:text-red-100 p-2 hover:bg-white/10 rounded-lg transition-all duration-200"
+              className="text-gray-600 hover:text-gray-800 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <ArrowLeft className="w-6 h-6" />
             </button>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
+                <User className="w-5 h-5 text-lg" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Account Settings</h1>
-                <p className="text-red-100 text-sm">Manage your preferences</p>
+                <h1 className="text-xl font-bold text-gray-800">Account Settings</h1>
+                <p className="text-xl font-bold text-gray-800">Manage your preferences</p>
               </div>
             </div>
-            <div className="text-sm text-red-100 bg-white/10 px-3 py-1 rounded-full">9:41</div>
+
           </div>
         </div>
 
@@ -110,12 +111,6 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                       <h3 className="text-lg font-semibold text-gray-800">Profile Information</h3>
                     </div>
                     <button
-                      onClick={() => {
-                        onClose()
-                        if (typeof window !== "undefined") {
-                          window.dispatchEvent(new CustomEvent("openProfileManagement"))
-                        }
-                      }}
                       className="flex items-center gap-4 w-full text-left hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 rounded-xl p-4 -m-2 transition-all duration-200 group"
                     >
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
@@ -134,7 +129,6 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                           {userInfo.phone}
                         </p>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
                     </button>
                   </CardContent>
                 </div>
@@ -151,7 +145,6 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                         <span className="text-xl">🔔</span>
                         <h3 className="text-lg font-semibold text-gray-900">Notification Settings</h3>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400" />
                     </div>
 
                     {/* Order Alerts */}
@@ -161,6 +154,7 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                         <h4 className="text-base font-semibold text-gray-800">Order Alerts</h4>
                       </div>
                       <div className="space-y-4 bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-xl">
+                        {/* Push Notifications */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
@@ -173,11 +167,13 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                           </div>
                           <Switch
                             checked={notificationSettings.orderAlerts.push}
-                            onCheckedChange={(checked) => handleNotificationToggle("orderAlerts", "push", checked)}
+                            onCheckedChange={checked => handleNotificationToggle("orderAlerts", "push", checked)}
                             className="data-[state=checked]:bg-red-500"
+                            title="Toggle push notifications for order alerts"
+                            aria-label="Toggle push notifications for order alerts"
                           />
                         </div>
-
+                        {/* Email Notifications */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center">
@@ -190,11 +186,13 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                           </div>
                           <Switch
                             checked={notificationSettings.orderAlerts.email}
-                            onCheckedChange={(checked) => handleNotificationToggle("orderAlerts", "email", checked)}
+                            onCheckedChange={checked => handleNotificationToggle("orderAlerts", "email", checked)}
                             className="data-[state=checked]:bg-red-500"
+                            title="Toggle email notifications for order alerts"
+                            aria-label="Toggle email notifications for order alerts"
                           />
                         </div>
-
+                        {/* SMS Notifications */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
@@ -207,13 +205,14 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                           </div>
                           <Switch
                             checked={notificationSettings.orderAlerts.sms}
-                            onCheckedChange={(checked) => handleNotificationToggle("orderAlerts", "sms", checked)}
+                            onCheckedChange={checked => handleNotificationToggle("orderAlerts", "sms", checked)}
                             className="data-[state=checked]:bg-red-500"
+                            title="Toggle SMS notifications for order alerts"
+                            aria-label="Toggle SMS notifications for order alerts"
                           />
                         </div>
                       </div>
                     </div>
-
                     {/* Payment Alerts */}
                     <div>
                       <div className="flex items-center gap-2 mb-4">
@@ -221,6 +220,7 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                         <h4 className="text-base font-semibold text-gray-800">Payment Alerts</h4>
                       </div>
                       <div className="space-y-4 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl">
+                        {/* Push Notifications */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
@@ -233,11 +233,13 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                           </div>
                           <Switch
                             checked={notificationSettings.paymentAlerts.push}
-                            onCheckedChange={(checked) => handleNotificationToggle("paymentAlerts", "push", checked)}
+                            onCheckedChange={checked => handleNotificationToggle("paymentAlerts", "push", checked)}
                             className="data-[state=checked]:bg-red-500"
+                            title="Toggle push notifications for payment alerts"
+                            aria-label="Toggle push notifications for payment alerts"
                           />
                         </div>
-
+                        {/* Email Notifications */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center">
@@ -250,11 +252,13 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                           </div>
                           <Switch
                             checked={notificationSettings.paymentAlerts.email}
-                            onCheckedChange={(checked) => handleNotificationToggle("paymentAlerts", "email", checked)}
+                            onCheckedChange={checked => handleNotificationToggle("paymentAlerts", "email", checked)}
                             className="data-[state=checked]:bg-red-500"
+                            title="Toggle email notifications for payment alerts"
+                            aria-label="Toggle email notifications for payment alerts"
                           />
                         </div>
-
+                        {/* SMS Notifications */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
@@ -267,8 +271,10 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                           </div>
                           <Switch
                             checked={notificationSettings.paymentAlerts.sms}
-                            onCheckedChange={(checked) => handleNotificationToggle("paymentAlerts", "sms", checked)}
+                            onCheckedChange={checked => handleNotificationToggle("paymentAlerts", "sms", checked)}
                             className="data-[state=checked]:bg-red-500"
+                            title="Toggle SMS notifications for payment alerts"
+                            aria-label="Toggle SMS notifications for payment alerts"
                           />
                         </div>
                       </div>

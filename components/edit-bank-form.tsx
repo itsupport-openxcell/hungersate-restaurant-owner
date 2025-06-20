@@ -126,7 +126,6 @@ export default function EditBankForm({ isOpen, onClose, onSave, bankAccount }: E
             <ArrowLeft className="w-6 h-6" />
           </button>
           <h1 className="text-xl font-bold text-white">Edit Bank Account</h1>
-          <div className="text-sm text-white/80">9:41</div>
         </div>
       </div>
 

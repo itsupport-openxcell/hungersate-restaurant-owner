@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: 'Hungersate Website',
   description: 'Created with React Js and Tailwind CSS',
   generator: 'React Js and Tailwind CSS',
+  icons: {
+    icon: '/images/Logo-icon.png',
+  }
 }
 
 export default function RootLayout({
