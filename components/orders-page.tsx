@@ -35,7 +35,6 @@ interface OrderItem {
 
 interface Order {
   id: string
-  customerName: string
   orderId: string
   amount: number
   itemCount: number
@@ -77,7 +76,6 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
     new: [
       {
         id: "1",
-        customerName: "Rahul Sharma",
         orderId: "ORD-1001",
         amount: 568,
         itemCount: 5,
@@ -92,7 +90,6 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
       },
       {
         id: "2",
-        customerName: "Anita Desai",
         orderId: "ORD-1002",
         amount: 750,
         itemCount: 3,
@@ -107,7 +104,6 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
     ongoing: [
       {
         id: "6",
-        customerName: "Rajesh Patel",
         orderId: "ORD-1006",
         amount: 568,
         itemCount: 4,
@@ -122,7 +118,6 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
     past: [
       {
         id: "9",
-        customerName: "Meera Reddy",
         orderId: "ORD-1009",
         amount: 568,
         itemCount: 5,
@@ -160,7 +155,6 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
     return orders.filter((order) => {
       const matchesSearch =
         !searchQuery ||
-        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.orderId.toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesAmountRange =
@@ -168,7 +162,7 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
         (!filters.amountRange.maxAmount || order.amount <= Number.parseFloat(filters.amountRange.maxAmount))
 
       const matchesCustomer =
-        !filters.customer || order.customerName.toLowerCase().includes(filters.customer.toLowerCase())
+        !filters.customer
 
       const matchesStatus = !filters.status || order.status === filters.status
 
@@ -483,19 +477,23 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                             <div
                               className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-md`}
                             >
+                              {/* Use <img> with .gif for animation, ensure the file exists at public/images/orders.gif */}
                               <img
-                                src="/images/user.jpg"
-                                alt="Logo"
+                                src="/images/orders.gif"
+                                alt="Order Animation"
                                 className="w-full h-full object-contain"
+                                onError={e => {
+                                  const target = e.target as HTMLImageElement
+                                  target.src = "/images/food-placeholder.png"
+                                }}
                               />
                             </div>
-
                             {/* Order Details */}
                             <div className="flex-1">
                               <div className="flex items-start justify-between mb-3">
                                 <div>
-                                  <h3 className="font-bold text-lg text-gray-900">{order.customerName}</h3>
-                                  <p className="text-sm text-gray-900">{order.orderId}</p>
+                                  <h3 className="font-bold text-lg text-gray-900">{order.orderId}</h3>
+
                                 </div>
                                 <div className="text-right">
                                   <div className="text-2xl font-bold text-gray-900">₹{order.amount}</div>
@@ -639,8 +637,8 @@ export default function OrdersPage({ isOpen, onClose, initialTab = "new" }: Orde
                       />
                     </div>
                     <div>
-                      <h3 className="font-bold text-xl text-gray-900">{selectedOrder.customerName}</h3>
-                      <p className="text-sm text-gray-500">{selectedOrder.orderId}</p>
+                      <h3 className="font-bold text-xl text-gray-900">{selectedOrder.orderId}</h3>
+
                     </div>
                   </div>
                   <button

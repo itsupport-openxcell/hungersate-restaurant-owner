@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, ChevronRight, LogOut, Mail, MessageSquare, Smartphone, User } from "lucide-react"
+import { ArrowLeft, LogOut, Mail, MessageSquare, Smartphone, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent } from "@/components/ui/card"
@@ -149,10 +149,6 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
 
                     {/* Order Alerts */}
                     <div className="mb-8">
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="text-lg">📦</span>
-                        <h4 className="text-base font-semibold text-gray-800">Order Alerts</h4>
-                      </div>
                       <div className="space-y-4 bg-gradient-to-r from-orange-50 to-red-50 p-4 rounded-xl">
                         {/* Push Notifications */}
                         <div className="flex items-center justify-between">
@@ -209,72 +205,6 @@ export default function AccountSettings({ isOpen, onClose }: AccountSettingsProp
                             className="data-[state=checked]:bg-red-500"
                             title="Toggle SMS notifications for order alerts"
                             aria-label="Toggle SMS notifications for order alerts"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    {/* Payment Alerts */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="text-lg">💳</span>
-                        <h4 className="text-base font-semibold text-gray-800">Payment Alerts</h4>
-                      </div>
-                      <div className="space-y-4 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl">
-                        {/* Push Notifications */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
-                              <Smartphone className="w-5 h-5 text-blue-600" />
-                            </div>
-                            <div>
-                              <span className="text-gray-800 font-medium">Push Notifications</span>
-                              <p className="text-xs text-gray-600">Payment confirmations & alerts</p>
-                            </div>
-                          </div>
-                          <Switch
-                            checked={notificationSettings.paymentAlerts.push}
-                            onCheckedChange={checked => handleNotificationToggle("paymentAlerts", "push", checked)}
-                            className="data-[state=checked]:bg-red-500"
-                            title="Toggle push notifications for payment alerts"
-                            aria-label="Toggle push notifications for payment alerts"
-                          />
-                        </div>
-                        {/* Email Notifications */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center">
-                              <Mail className="w-5 h-5 text-green-600" />
-                            </div>
-                            <div>
-                              <span className="text-gray-800 font-medium">Email Notification</span>
-                              <p className="text-xs text-gray-600">Payment receipts via email</p>
-                            </div>
-                          </div>
-                          <Switch
-                            checked={notificationSettings.paymentAlerts.email}
-                            onCheckedChange={checked => handleNotificationToggle("paymentAlerts", "email", checked)}
-                            className="data-[state=checked]:bg-red-500"
-                            title="Toggle email notifications for payment alerts"
-                            aria-label="Toggle email notifications for payment alerts"
-                          />
-                        </div>
-                        {/* SMS Notifications */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
-                              <MessageSquare className="w-5 h-5 text-purple-600" />
-                            </div>
-                            <div>
-                              <span className="text-gray-800 font-medium">SMS Notification</span>
-                              <p className="text-xs text-gray-600">Transaction alerts via SMS</p>
-                            </div>
-                          </div>
-                          <Switch
-                            checked={notificationSettings.paymentAlerts.sms}
-                            onCheckedChange={checked => handleNotificationToggle("paymentAlerts", "sms", checked)}
-                            className="data-[state=checked]:bg-red-500"
-                            title="Toggle SMS notifications for payment alerts"
-                            aria-label="Toggle SMS notifications for payment alerts"
                           />
                         </div>
                       </div>

@@ -206,16 +206,6 @@ const DashboardPage = () => {
       </header>
 
       <main className={`p-6 space-y-8 ${sideMenu ? "ml-80" : ""}`}>
-        <section className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-6 text-white flex justify-between">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Good Morning! 👋</h2>
-            <p className="text-red-100">Here's what's happening with your restaurant today</p>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold">₹1,250.75</div>
-            <p className="text-red-100">Today's Revenue</p>
-          </div>
-        </section>
 
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {STATS.map((stat, i) => (

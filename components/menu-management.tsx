@@ -24,7 +24,7 @@ interface MenuManagementProps {
   onClose: () => void
 }
 
-type MenuTab = "All" | "Appetizers" | "Main Course" | "Desserts" | "Beverages"
+type MenuTab = "All" | "Veg" | "Non-Veg"
 type MenuStatus = "Available" | "Unavailable" | "Pending"
 
 interface MenuItem {
@@ -32,36 +32,20 @@ interface MenuItem {
   name: string
   description: string
   price: number
-  category: string
+  dishType: string
   cuisine: string
   status: MenuStatus
   image: string
-  isAvailable: boolean
 }
 
 interface MenuFilters {
-  category: string
+  dishType: string
   cuisine: string
   status: string
   priceRange: {
     min: string
     max: string
   }
-}
-
-// Add this helper component above the main export
-function AvailabilityBadge({ isAvailable }: { isAvailable: boolean }) {
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold
-        ${isAvailable
-          ? "bg-green-100 text-green-800 border border-green-200"
-          : "bg-red-100 text-red-800 border border-red-200"
-        }`}
-    >
-      {isAvailable ? "Available" : "Unavailable"}
-    </span>
-  )
 }
 
 export default function MenuManagement({ isOpen, onClose }: MenuManagementProps) {
@@ -76,7 +60,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
   const [loading, setLoading] = useState(false)
 
   const [filters, setFilters] = useState<MenuFilters>({
-    category: "",
+    dishType: "",
     cuisine: "",
     status: "",
     priceRange: { min: "", max: "" },
@@ -89,88 +73,80 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
       description:
         "Marinated cottage cheese cubes grilled to perfection with bell pepper and onion, served with mint chutney",
       price: 320,
-      category: "Appetizers",
+      dishType: "Veg",
       cuisine: "Indian",
       status: "Available",
       image: "/images/paneer-tikka.png",
-      isAvailable: true,
     },
     {
       id: "2",
       name: "Butter Paneer Masala",
       description: "Creamy tomato-based curry with soft paneer cubes, aromatic spices and fresh herbs",
       price: 350,
-      category: "Main Course",
+      dishType: "Veg",
       cuisine: "Indian",
       status: "Available",
       image: "/images/paneer-tikka.png",
-      isAvailable: true,
     },
     {
       id: "3",
       name: "Chana Masala",
       description: "Spicy chickpeas cooked in a rich tomato-based gravy with an array of traditional spices",
       price: 280,
-      category: "Main Course",
+      dishType: "Non-Veg",
       cuisine: "Indian",
-      status: "Available",
-      image: "/images/chana-masala.png",
-      isAvailable: true,
+      status: "Pending",
+      image: "/images/chana-masala.png"
     },
     {
       id: "4",
       name: "Aloo Gobi",
       description: "A flavorful dry curry of potatoes and cauliflower cooked with aromatic spices and herbs",
       price: 250,
-      category: "Main Course",
+      dishType: "Non-Veg",
       cuisine: "Indian",
       status: "Available",
       image: "/images/aloo-gobi.png",
-      isAvailable: true,
     },
     {
       id: "5",
       name: "Vegetable Biryani",
       description: "Aromatic basmati rice layered with mixed vegetables, saffron, and traditional biryani spices",
       price: 380,
-      category: "Main Course",
+      dishType: "Veg",
       cuisine: "Indian",
-      status: "Available",
+      status: "Unavailable",
       image: "/images/biryani.png",
-      isAvailable: true,
     },
     {
       id: "6",
       name: "Dal Tadka",
       description: "Yellow lentils cooked to perfection and tempered with cumin, garlic, and aromatic spices",
       price: 220,
-      category: "Main Course",
+      dishType: "Non-Veg",
       cuisine: "Indian",
       status: "Available",
-      image: "/images/dal-tadka.png",
-      isAvailable: false,
+      image: "/images/dal-tadka.png"
     },
     {
       id: "7",
       name: "Gulab Jamun",
       description: "Soft, spongy milk dumplings soaked in sweet rose-flavored sugar syrup",
       price: 120,
-      category: "Desserts",
+      dishType: "Non-Veg",
       cuisine: "Indian",
-      status: "Available",
+      status: "Unavailable",
       image: "/images/food-placeholder.png",
-      isAvailable: false,
     },
     {
       id: "8",
       name: "Masala Chai",
       description: "Traditional Indian spiced tea brewed with cardamom, ginger, and aromatic spices",
       price: 60,
-      category: "Beverages",
+      dishType: "Non-Veg",
       cuisine: "Indian",
-      status: "Available",
+      status: "Pending",
       image: "/images/food-placeholder.png",
-      isAvailable: true,
     },
   ])
 
@@ -185,7 +161,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
     setTimeout(() => setShowToast({ show: false, message: "", type: "success" }), 3000)
   }
 
-  const categories = ["Appetizers", "Main Course", "Desserts", "Beverages", "Sides", "Breads"]
+  const categories = ["Veg", "Non Veg"]
   const cuisines = ["Indian", "Chinese", "Continental", "Italian", "Mexican", "Thai"]
 
   const applyFilters = (items: MenuItem[]) => {
@@ -195,7 +171,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase())
 
-      const matchesCategory = !filters.category || item.category === filters.category
+      const matchesCategory = !filters.dishType || item.dishType === filters.dishType
       const matchesCuisine = !filters.cuisine || item.cuisine === filters.cuisine
       const matchesStatus = !filters.status || item.status === filters.status
 
@@ -203,7 +179,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
         (!filters.priceRange.min || item.price >= Number.parseFloat(filters.priceRange.min)) &&
         (!filters.priceRange.max || item.price <= Number.parseFloat(filters.priceRange.max))
 
-      const matchesTab = activeTab === "All" || item.category === activeTab
+      const matchesTab = activeTab === "All" || item.dishType === activeTab
 
       return matchesSearch && matchesCategory && matchesCuisine && matchesStatus && matchesPriceRange && matchesTab
     })
@@ -213,22 +189,6 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage)
-
-  const handleToggleAvailability = (itemId: string) => {
-    setMenuItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId
-          ? {
-            ...item,
-            isAvailable: !item.isAvailable,
-            status: !item.isAvailable ? "Available" : "Unavailable",
-          }
-          : item,
-      ),
-    )
-    const item = menuItems.find((item) => item.id === itemId)
-    showToastMessage(`${item?.name} ${item?.isAvailable ? "marked unavailable" : "marked available"}`)
-  }
 
   const handleEditItem = (item: MenuItem) => {
     setSelectedItem(item)
@@ -250,10 +210,8 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
 
   const getTabCounts = () => ({
     All: menuItems.length,
-    Appetizers: menuItems.filter((item) => item.category === "Appetizers").length,
-    "Main Course": menuItems.filter((item) => item.category === "Main Course").length,
-    Desserts: menuItems.filter((item) => item.category === "Desserts").length,
-    Beverages: menuItems.filter((item) => item.category === "Beverages").length,
+    Veg: menuItems.filter((item) => item.dishType === "Veg").length,
+    "Non-Veg": menuItems.filter((item) => item.dishType === "Non-Veg").length,
   })
 
   const tabCounts = getTabCounts()
@@ -287,8 +245,8 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
         {/* Enhanced Tabs */}
         <div className="bg-white border-b border-gray-200 flex-shrink-0">
           <div className="flex overflow-x-auto">
-            {(["All", "Appetizers", "Main Course", "Desserts", "Beverages"] as MenuTab[]).map((tab) => (
-              <button
+            {(["All", "Veg", "Non-Veg"] as MenuTab[]).map((tab) => (
+              < button
                 key={tab}
                 onClick={() => {
                   setActiveTab(tab)
@@ -340,21 +298,21 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
             <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700" htmlFor="filter-category">Category</Label>
+                  <Label className="text-sm font-medium text-gray-700" htmlFor="filter-dishType">DishType</Label>
                   <select
-                    id="filter-category"
-                    title="Filter by category"
-                    value={filters.category}
+                    id="filter-dishType"
+                    title="Filter by dishType"
+                    value={filters.dishType}
                     onChange={(e) => {
-                      setFilters({ ...filters, category: e.target.value })
+                      setFilters({ ...filters, dishType: e.target.value })
                       setCurrentPage(1)
                     }}
                     className="w-full h-10 px-3 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   >
                     <option value="">All Categories</option>
-                    {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
+                    {categories.map((dishType) => (
+                      <option key={dishType} value={dishType}>
+                        {dishType}
                       </option>
                     ))}
                   </select>
@@ -440,7 +398,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                   className="border-red-300 text-red-600 hover:bg-red-50"
                   onClick={() => {
                     setFilters({
-                      category: "",
+                      dishType: "",
                       cuisine: "",
                       status: "",
                       priceRange: { min: "", max: "" },
@@ -509,7 +467,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
 
                         <div className="flex items-center gap-2 mb-3">
                           <Badge variant="outline" className="text-xs">
-                            {item.category}
+                            {item.dishType}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             {item.cuisine}
@@ -520,17 +478,7 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
                           <div className="text-2xl font-bold text-gray-900">₹{item.price}</div>
                         </div>
 
-                        {/* Enhanced Availability Toggle */}
-                        <div className="flex items-center justify-between mb-4 p-3 bg-neutral-200 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={item.isAvailable}
-                              onCheckedChange={() => handleToggleAvailability(item.id)}
-                              className="data-[state=checked]:bg-red-500 bg-neutral-400 border border-neutral-400"
-                            />
-                            <AvailabilityBadge isAvailable={item.isAvailable} />
-                          </div>
-                        </div>
+
                         {/* Enhanced Action Buttons */}
                         <div className="flex gap-2">
                           <Button
@@ -586,55 +534,59 @@ export default function MenuManagement({ isOpen, onClose }: MenuManagementProps)
             </div>
           </div>
         )}
-      </div>
+      </div >
 
       {/* Enhanced Add/Edit Menu Item Forms */}
-      {(showAddForm || showEditForm) && (
-        <MenuItemForm
-          isOpen={showAddForm || showEditForm}
-          onClose={() => {
-            setShowAddForm(false)
-            setShowEditForm(false)
-            setSelectedItem(null)
-          }}
-          onSave={(item) => {
-            if (showEditForm && selectedItem) {
-              setMenuItems((prev) => prev.map((i) => (i.id === selectedItem.id ? { ...item, id: selectedItem.id } : i)))
-              showToastMessage(`${item.name} updated successfully`)
-            } else {
-              setMenuItems((prev) => [...prev, { ...item, id: Date.now().toString() }])
-              showToastMessage(`${item.name} added successfully`)
-            }
-            setShowAddForm(false)
-            setShowEditForm(false)
-            setSelectedItem(null)
-          }}
-          item={selectedItem}
-          isEdit={showEditForm}
-          categories={categories}
-          cuisines={cuisines}
-        />
-      )}
+      {
+        (showAddForm || showEditForm) && (
+          <MenuItemForm
+            isOpen={showAddForm || showEditForm}
+            onClose={() => {
+              setShowAddForm(false)
+              setShowEditForm(false)
+              setSelectedItem(null)
+            }}
+            onSave={(item) => {
+              if (showEditForm && selectedItem) {
+                setMenuItems((prev) => prev.map((i) => (i.id === selectedItem.id ? { ...item, id: selectedItem.id } : i)))
+                showToastMessage(`${item.name} updated successfully`)
+              } else {
+                setMenuItems((prev) => [...prev, { ...item, id: Date.now().toString() }])
+                showToastMessage(`${item.name} added successfully`)
+              }
+              setShowAddForm(false)
+              setShowEditForm(false)
+              setSelectedItem(null)
+            }}
+            item={selectedItem}
+            isEdit={showEditForm}
+            categories={categories}
+            cuisines={cuisines}
+          />
+        )
+      }
 
       {/* Enhanced Toast Notification */}
-      {showToast.show && (
-        <div
-          className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-fade-in ${showToast.type === "success"
-            ? "bg-green-500 text-white"
-            : showToast.type === "error"
-              ? "bg-red-500 text-white"
-              : "bg-blue-500 text-white"
-            }`}
-        >
-          <span className="font-medium">{showToast.message}</span>
-          <button
-            onClick={() => setShowToast({ show: false, message: "", type: "success" })}
-            className="text-white/80 hover:text-white"
+      {
+        showToast.show && (
+          <div
+            className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-fade-in ${showToast.type === "success"
+              ? "bg-green-500 text-white"
+              : showToast.type === "error"
+                ? "bg-red-500 text-white"
+                : "bg-blue-500 text-white"
+              }`}
           >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+            <span className="font-medium">{showToast.message}</span>
+            <button
+              onClick={() => setShowToast({ show: false, message: "", type: "success" })}
+              className="text-white/80 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )
+      }
     </>
   )
 }
@@ -655,11 +607,11 @@ function MenuItemForm({ isOpen, onClose, onSave, item, isEdit, categories, cuisi
     name: item?.name || "",
     description: item?.description || "",
     price: item?.price?.toString() || "",
-    category: item?.category || "",
+    dishType: item?.dishType || "",
     cuisine: item?.cuisine || "",
     image: item?.image || "",
-    isAvailable: item?.isAvailable ?? true,
-    status: (item?.status as MenuStatus) || "Available"
+    status: (item?.status as MenuStatus) || "Available",
+    spiceLevel: item?.spiceLevel || "",
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -679,7 +631,7 @@ function MenuItemForm({ isOpen, onClose, onSave, item, isEdit, categories, cuisi
     else if (Number.isNaN(Number.parseFloat(formData.price)) || Number.parseFloat(formData.price) <= 0)
       newErrors.price = "Valid price is required"
     if (!formData.description.trim()) newErrors.description = "Description is required"
-    if (!formData.category) newErrors.category = "Category is required"
+    if (!formData.dishType) newErrors.dishType = "Dish type is required"
     if (!formData.cuisine) newErrors.cuisine = "Cuisine is required"
 
     setErrors(newErrors)
@@ -692,19 +644,24 @@ function MenuItemForm({ isOpen, onClose, onSave, item, isEdit, categories, cuisi
         name: formData.name,
         description: formData.description,
         price: Number.parseFloat(formData.price),
-        category: formData.category,
+        dishType: formData.dishType,
         cuisine: formData.cuisine,
         image: formData.image || "/images/food-placeholder.png",
-        isAvailable: formData.isAvailable,
         status: formData.status,
-        rating: 4.0 + Math.random() * 1, // Random rating between 4.0-5.0
-        orders: Math.floor(Math.random() * 200) + 50, // Random orders between 50-250
-        preparationTime: formData.preparationTime,
+        spiceLevel: formData.spiceLevel,
       })
     }
   }
 
   if (!isOpen) return null
+
+  // Add spice levels
+  const spiceLevels = [
+    { value: "mild", label: "Mild" },
+    { value: "medium", label: "Medium" },
+    { value: "spicy", label: "Spicy" },
+    { value: "very-spicy", label: "Very Spicy" },
+  ]
 
   return (
     <>
@@ -804,29 +761,29 @@ function MenuItemForm({ isOpen, onClose, onSave, item, isEdit, categories, cuisi
                 </div>
               </div>
 
-              {/* Category & Classification */}
+              {/* dishType & Classification */}
               <div className="space-y-4">
-                <h4 className="font-medium text-gray-900 border-b border-gray-200 pb-2">Category & Classification</h4>
+                <h4 className="font-medium text-gray-900 border-b border-gray-200 pb-2">DishType & Classification</h4>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="category" className="text-sm font-medium text-gray-700">
-                      Category
+                    <Label htmlFor="dishType" className="text-sm font-medium text-gray-700">
+                      Dish Type
                     </Label>
                     <select
-                      id="category"
-                      value={formData.category}
-                      onChange={(e) => handleInputChange("category", e.target.value)}
+                      id="dishType"
+                      value={formData.dishType}
+                      onChange={(e) => handleInputChange("dishType", e.target.value)}
                       className="mt-1 w-full h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     >
-                      <option value="">Select category</option>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
+                      <option value="">Select Dish Type</option>
+                      {categories.map((dishType) => (
+                        <option key={dishType} value={dishType}>
+                          {dishType}
                         </option>
                       ))}
                     </select>
-                    {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+                    {errors.dishType && <p className="text-red-500 text-sm mt-1">{errors.dishType}</p>}
                   </div>
 
                   <div>
@@ -848,6 +805,26 @@ function MenuItemForm({ isOpen, onClose, onSave, item, isEdit, categories, cuisi
                     </select>
                     {errors.cuisine && <p className="text-red-500 text-sm mt-1">{errors.cuisine}</p>}
                   </div>
+                </div>
+
+                {/* Spice Level Dropdown */}
+                <div className="mt-4">
+                  <Label htmlFor="spiceLevel" className="text-sm font-medium text-gray-700">
+                    Spice Level
+                  </Label>
+                  <select
+                    id="spiceLevel"
+                    value={formData.spiceLevel}
+                    onChange={e => handleInputChange("spiceLevel", e.target.value)}
+                    className="mt-1 w-full h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  >
+                    <option value="">Select Spice Level</option>
+                    {spiceLevels.map((level) => (
+                      <option key={level.value} value={level.value}>
+                        {level.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
