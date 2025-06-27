@@ -30,7 +30,7 @@ const Sidebar = () => {
   ]
 
   return (
-    <div className="bg-white shadow-lg h-full w-64 fixed left-0 top-0 z-40">
+    <div className="bg-white shadow-lg h-full w-64 fixed left-0 top-0 z-40 overflow-y-auto">
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-3">
@@ -38,6 +38,9 @@ const Sidebar = () => {
             src="/images/Logo-icon.png" 
             alt="Logo" 
             className="w-10 h-10"
+            onError={(e) => {
+              e.target.style.display = 'none'
+            }}
           />
           <div>
             <h1 className="text-xl font-bold text-gray-900">HUNGERSATE</h1>
@@ -47,7 +50,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="mt-6">
+      <nav className="mt-6 pb-6">
         <div className="px-3">
           {menuItems.map((item) => {
             const Icon = item.icon
