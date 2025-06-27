@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, Filter, Edit } from 'lucide-react'
+import { Plus, Search, Filter, Edit, ChevronLeft, ChevronRight } from 'lucide-react'
 import Button from '../../components/Button'
 import { Input, Select } from '../../components/Form'
 import Modal from '../../components/Modal'
 import toast from 'react-hot-toast'
+import Pagination from '../../components/Pagination'
 
 const MenuList = () => {
   const navigate = useNavigate()
@@ -433,43 +434,13 @@ const MenuList = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredItems.length)} of{" "}
-              {filteredItems.length} items
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                variant="outline"
-                size="sm"
-                className="h-9 w-9 p-0"
-              >
-                <span className="sr-only">Previous</span>
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </Button>
-              <span className="text-sm font-medium px-3 py-1 bg-gray-100 rounded">
-                {currentPage} of {totalPages}
-              </span>
-              <Button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                variant="outline"
-                size="sm"
-                className="h-9 w-9 p-0"
-              >
-                <span className="sr-only">Next</span>
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={filteredItems.length}
+          itemsPerPage={itemsPerPage}
+        />
       )}
 
       {/* Add Menu Item Modal */}
@@ -699,10 +670,11 @@ const MenuItemForm = ({
                 id="dishType"
                 value={formData.dishType}
                 onChange={(e) => handleInputChange("dishType", e.target.value)}
+                className="text-gray-900"
               >
-                <option value="">Select Dish Type</option>
+                <option value="" className="text-gray-900">Select Dish Type</option>
                 {categories.map((dishType) => (
-                  <option key={dishType} value={dishType}>{dishType}</option>
+                  <option key={dishType} value={dishType} className="text-gray-900">{dishType}</option>
                 ))}
               </Select>
               {errors.dishType && <p className="text-red-500 text-sm mt-1">{errors.dishType}</p>}
@@ -716,10 +688,11 @@ const MenuItemForm = ({
                 id="cuisine"
                 value={formData.cuisine}
                 onChange={(e) => handleInputChange("cuisine", e.target.value)}
+                className="text-gray-900"
               >
-                <option value="">Select Cuisine</option>
+                <option value="" className="text-gray-900">Select Cuisine</option>
                 {cuisines.map((cuisine) => (
-                  <option key={cuisine} value={cuisine}>{cuisine}</option>
+                  <option key={cuisine} value={cuisine} className="text-gray-900">{cuisine}</option>
                 ))}
               </Select>
               {errors.cuisine && <p className="text-red-500 text-sm mt-1">{errors.cuisine}</p>}
@@ -735,9 +708,10 @@ const MenuItemForm = ({
                 id="status"
                 value={formData.status}
                 onChange={(e) => handleInputChange("status", e.target.value)}
+                className="text-gray-900"
               >
                 {statuses.map((status) => (
-                  <option key={status} value={status}>{status}</option>
+                  <option key={status} value={status} className="text-gray-900">{status}</option>
                 ))}
               </Select>
             </div>
@@ -750,10 +724,11 @@ const MenuItemForm = ({
                 id="spiceLevel"
                 value={formData.spiceLevel}
                 onChange={(e) => handleInputChange("spiceLevel", e.target.value)}
+                className="text-gray-900"
               >
-                <option value="">Select Spice Level</option>
+                <option value="" className="text-gray-900">Select Spice Level</option>
                 {spiceLevels.map((level) => (
-                  <option key={level.value} value={level.value}>{level.label}</option>
+                  <option key={level.value} value={level.value} className="text-gray-900">{level.label}</option>
                 ))}
               </Select>
             </div>
