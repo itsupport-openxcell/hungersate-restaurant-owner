@@ -6,7 +6,9 @@ import {
   TrendingUp,
   Bell,
   User,
-  Calendar
+  Calendar,
+  Package,
+  CreditCard
 } from 'lucide-react'
 import StatsCard from '../components/Dashboard/StatsCard'
 import ActivityItem from '../components/Dashboard/ActivityItem'
