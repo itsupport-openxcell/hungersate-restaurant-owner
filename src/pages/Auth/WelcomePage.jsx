@@ -4,19 +4,37 @@ import Button from "../../components/Button"
 import { Input } from "../../components/Form"
 
 const WelcomePage = ({ onLogin }) => {
-  const [phoneNumber, setPhoneNumber] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState("+91 ")
   const [error, setError] = useState("")
 
   const handleLogin = () => {
     const trimmedPhone = phoneNumber.trim()
 
-    if (!trimmedPhone) {
+    if (!trimmedPhone || trimmedPhone === "+91 ") {
       setError("Please enter your mobile number.")
       return
     }
 
     setError("")
     onLogin(trimmedPhone)
+  }
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value
+    // Ensure the phone number always starts with +91
+    if (value.startsWith("+91 ")) {
+      setPhoneNumber(value)
+    } else if (value.startsWith("+91")) {
+      setPhoneNumber("+91 " + value.substring(3))
+    } else if (value.startsWith("+9")) {
+      setPhoneNumber("+91 ")
+    } else if (value.startsWith("+")) {
+      setPhoneNumber("+91 ")
+    } else if (value === "") {
+      setPhoneNumber("+91 ")
+    } else {
+      setPhoneNumber("+91 " + value)
+    }
   }
 
   return (
@@ -59,7 +77,7 @@ const WelcomePage = ({ onLogin }) => {
             type="tel"
             placeholder="Enter your mobile number"
             value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            onChange={handlePhoneChange}
             className="pl-12 h-14 bg-white border-0 rounded-xl text-gray-700 placeholder-gray-400 text-base"
           />
         </div>

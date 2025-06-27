@@ -1,14 +1,55 @@
 import React, { useState } from 'react'
 import { Bell, User, LogOut, ChevronDown } from 'lucide-react'
 import Button from './Button'
+import Modal from './Modal'
+import NotificationItem from './Notifications/NotificationItem'
 
 const Topbar = () => {
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [notificationsModal, setNotificationsModal] = useState(false)
+  const [activeTab, setActiveTab] = useState("All")
+  const [selectedNotification, setSelectedNotification] = useState(null)
+
+  const notifications = [
+    {
+      id: "1",
+      type: "order",
+      title: "New order #12345",
+      message: "You have received a new order for $45.90. Tap to view details and accept.",
+      time: "5m ago",
+      amount: "$45.90",
+    },
+    {
+      id: "2",
+      type: "payment",
+      title: "Payment Received",
+      message: "Payment of $45.90 received. View transaction details.",
+      time: "10m ago",
+      amount: "$45.90",
+    },
+    {
+      id: "3",
+      type: "payment",
+      title: "Payment Confirmed",
+      message: "A payment of $45.90 has been successfully confirmed.",
+      time: "15m ago",
+      amount: "$45.90",
+    }
+  ]
+
+  const filteredNotifications = notifications.filter((notification) => {
+    if (activeTab === "All") return true
+    return notification.type === activeTab.toLowerCase()
+  })
 
   const handleLogout = () => {
     // Dispatch logout event
     window.dispatchEvent(new CustomEvent("logout"))
     setShowUserMenu(false)
+  }
+
+  const handleNotificationClick = (notification) => {
+    setSelectedNotification(notification)
   }
 
   return (
@@ -21,7 +62,12 @@ const Topbar = () => {
       {/* Right Side */}
       <div className="flex items-center space-x-4">
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative"
+          onClick={() => setNotificationsModal(true)}
+        >
           <Bell className="h-5 w-5" />
           <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
         </Button>
@@ -82,6 +128,77 @@ const Topbar = () => {
           )}
         </div>
       </div>
+
+      {/* Notifications Modal */}
+      <Modal
+        isOpen={notificationsModal}
+        onClose={() => setNotificationsModal(false)}
+        title="Notifications"
+        size="lg"
+      >
+        <div className="mb-6">
+          <div className="flex border-b border-gray-200 mb-4">
+            {["All", "Order", "Payment"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-4 px-6 text-center font-semibold transition-all relative ${
+                  activeTab === tab
+                    ? "text-red-600 bg-gradient-to-b from-red-50 to-white"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  {tab}
+                </div>
+                {activeTab === tab && (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-red-600 rounded-t-full" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="space-y-4">
+            {filteredNotifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                id={notification.id}
+                type={notification.type}
+                title={notification.title}
+                message={notification.message}
+                time={notification.time}
+                amount={notification.amount}
+                onClick={() => handleNotificationClick(notification)}
+              />
+            ))}
+          </div>
+        </div>
+      </Modal>
+
+      {/* Notification Detail Modal */}
+      {selectedNotification && (
+        <Modal
+          isOpen={!!selectedNotification}
+          onClose={() => setSelectedNotification(null)}
+          title={selectedNotification.title}
+          size="md"
+          footer={
+            <Button onClick={() => setSelectedNotification(null)}>
+              Close
+            </Button>
+          }
+        >
+          <div className="space-y-4">
+            <p className="text-gray-600">{selectedNotification.message}</p>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-500">{selectedNotification.time}</span>
+              {selectedNotification.amount && (
+                <span className="font-bold text-lg">{selectedNotification.amount}</span>
+              )}
+            </div>
+          </div>
+        </Modal>
+      )}
     </header>
   )
 }
