@@ -11,7 +11,13 @@ const OrdersList = () => {
   const [showFilters, setShowFilters] = useState(false)
   const [viewModal, setViewModal] = useState({ isOpen: false, order: null })
   const [activeTab, setActiveTab] = useState("new")
-  const [currentPage, setCurrentPage] = useState(1)
+  
+  // Pagination state for each tab
+  const [paginationState, setPaginationState] = useState({
+    new: 1,
+    ongoing: 1,
+    completed: 1
+  })
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -53,6 +59,19 @@ const OrdersList = () => {
         date: "2024-06-04",
         time: "12:15 PM"
       },
+      {
+        id: "3",
+        orderId: "ORD-1003",
+        customer: "David Brown",
+        items: [
+          { name: "Chicken Tikka", quantity: 1, price: 380, image: "/images/food-placeholder.png" },
+          { name: "Butter Naan", quantity: 2, price: 70, image: "/images/food-placeholder.png" },
+        ],
+        amount: 520,
+        status: "new",
+        date: "2024-06-04",
+        time: "11:45 AM"
+      },
     ],
     ongoing: [
       {
@@ -68,6 +87,20 @@ const OrdersList = () => {
         status: "preparing",
         date: "2024-06-04",
         time: "11:45 AM"
+      },
+      {
+        id: "7",
+        orderId: "ORD-1007",
+        customer: "Lisa Taylor",
+        items: [
+          { name: "Masala Dosa", quantity: 2, price: 180, image: "/images/food-placeholder.png" },
+          { name: "Sambar", quantity: 2, price: 80, image: "/images/food-placeholder.png" },
+          { name: "Coconut Chutney", quantity: 2, price: 40, image: "/images/food-placeholder.png" },
+        ],
+        amount: 600,
+        status: "preparing",
+        date: "2024-06-04",
+        time: "11:30 AM"
       },
     ],
     completed: [
@@ -86,11 +119,44 @@ const OrdersList = () => {
         date: "2024-06-04",
         time: "10:30 AM"
       },
+      {
+        id: "10",
+        orderId: "ORD-1010",
+        customer: "Robert Wilson",
+        items: [
+          { name: "Chole Bhature", quantity: 2, price: 220, image: "/images/food-placeholder.png" },
+          { name: "Lassi", quantity: 2, price: 80, image: "/images/food-placeholder.png" },
+        ],
+        amount: 600,
+        status: "completed",
+        date: "2024-06-04",
+        time: "10:15 AM"
+      },
+      {
+        id: "11",
+        orderId: "ORD-1011",
+        customer: "Jennifer Smith",
+        items: [
+          { name: "Pav Bhaji", quantity: 1, price: 180, image: "/images/food-placeholder.png" },
+          { name: "Masala Chai", quantity: 2, price: 40, image: "/images/food-placeholder.png" },
+        ],
+        amount: 260,
+        status: "completed",
+        date: "2024-06-04",
+        time: "09:45 AM"
+      },
     ],
   })
 
   const itemsPerPage = 2
-  const currentOrders = orders[activeTab] || []
+  
+  const getCurrentOrders = () => {
+    // Apply filters if needed
+    return orders[activeTab] || []
+  }
+  
+  const currentOrders = getCurrentOrders()
+  const currentPage = paginationState[activeTab]
   const totalPages = Math.ceil(currentOrders.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedOrders = currentOrders.slice(startIndex, startIndex + itemsPerPage)
@@ -105,7 +171,13 @@ const OrdersList = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab)
-    setCurrentPage(1)
+  }
+
+  const handlePageChange = (page) => {
+    setPaginationState(prev => ({
+      ...prev,
+      [activeTab]: page
+    }))
   }
 
   const handleViewOrder = (order) => {
@@ -199,6 +271,9 @@ const OrdersList = () => {
           >
             <div className="flex items-center justify-center gap-2">
               <span>Completed</span>
+              {tabCounts.completed > 0 && (
+                <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">{tabCounts.completed}</span>
+              )}
             </div>
           </button>
         </div>
@@ -291,7 +366,7 @@ const OrdersList = () => {
       </div>
 
       {/* Orders List */}
-      <div className="space-y-4 pb-20">
+      <div className="space-y-4">
         {paginatedOrders.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg border border-gray-200">
             <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -402,6 +477,17 @@ const OrdersList = () => {
                         Mark Ready for Pickup
                       </Button>
                     )}
+
+                    {activeTab === "completed" && (
+                      <Button
+                        onClick={() => handleViewOrder(order)}
+                        variant="outline"
+                        className="w-full h-11 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Order Details
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -415,7 +501,7 @@ const OrdersList = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={handlePageChange}
           totalItems={currentOrders.length}
           itemsPerPage={itemsPerPage}
         />
