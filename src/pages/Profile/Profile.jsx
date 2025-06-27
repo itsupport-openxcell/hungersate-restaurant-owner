@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Camera, Save } from 'lucide-react'
+import { Camera, Save, Edit, Mail, Smartphone, User } from 'lucide-react'
 import Button from '../../components/Button'
-import { FormField, Input, Textarea } from '../../components/Form'
+import { FormField, Input, Textarea, Select } from '../../components/Form'
 import toast from 'react-hot-toast'
 
 const ProfilePage = () => {
@@ -9,12 +9,18 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false)
 
   const [profileData, setProfileData] = useState({
-    name: 'Admin User',
-    email: 'admin@hungersate.com',
-    phone: '+91 9876543210',
-    role: 'Super Admin',
-    bio: 'Experienced restaurant platform administrator with 5+ years in the food industry.',
-    avatar: '/images/user.jpg'
+    restaurantName: "Spice Garden",
+    cuisineTypes: ["Indian", "Arabian", "Mughlai"],
+    establishmentYear: "2018",
+    phoneNumber: "+91 9876543210",
+    emailAddress: "contact@brandname.com",
+    website: "contact@brandname.com",
+    addressLine1: "123 Main Street",
+    addressLine2: "Near City Mall",
+    city: "Mumbai",
+    state: "Maharashtra",
+    pincode: "400001",
+    bio: 'Experienced restaurant platform administrator with 5+ years in the food industry.'
   })
 
   const [editData, setEditData] = useState(profileData)
@@ -43,16 +49,39 @@ const ProfilePage = () => {
     setIsEditing(false)
   }
 
+  const states = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", 
+    "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", 
+    "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", 
+    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", 
+    "West Bengal", "Delhi"
+  ]
+
+  const cuisines = [
+    "Indian", "Chinese", "Italian", "Mexican", "Thai", "Arabian", "Mughlai", "Continental", 
+    "Japanese", "Korean"
+  ]
+
+  const handleCuisineToggle = (cuisine) => {
+    setEditData(prev => ({
+      ...prev,
+      cuisineTypes: prev.cuisineTypes.includes(cuisine)
+        ? prev.cuisineTypes.filter(c => c !== cuisine)
+        : [...prev.cuisineTypes, cuisine]
+    }))
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Profile Management</h1>
-          <p className="text-gray-600">Manage your account information</p>
+          <p className="text-gray-600">Manage your restaurant profile</p>
         </div>
         {!isEditing && (
           <Button onClick={() => setIsEditing(true)}>
+            <Edit className="h-4 w-4 mr-2" />
             Edit Profile
           </Button>
         )}
@@ -60,18 +89,16 @@ const ProfilePage = () => {
 
       {/* Profile Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        {/* Header with Avatar */}
+        {/* Header with Logo */}
         <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-t-lg">
           <div className="flex items-center space-x-6">
             <div className="relative">
-              <img
-                src={profileData.avatar}
-                alt="Profile"
-                className="w-24 h-24 rounded-full border-4 border-white object-cover"
-                onError={(e) => {
-                  e.target.src = "/images/user.jpg"
-                }}
-              />
+              <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                <div className="text-white font-bold text-xl text-center">
+                  <div>bon</div>
+                  <div>ton</div>
+                </div>
+              </div>
               {isEditing && (
                 <button className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50">
                   <Camera className="h-4 w-4 text-gray-600" />
@@ -79,132 +106,280 @@ const ProfilePage = () => {
               )}
             </div>
             <div className="text-white">
-              <h2 className="text-2xl font-bold">{profileData.name}</h2>
-              <p className="text-red-100">{profileData.role}</p>
-              <p className="text-red-100 text-sm">{profileData.email}</p>
+              <h2 className="text-3xl font-bold">{profileData.restaurantName}</h2>
+              <div className="flex items-center gap-2 text-white/80">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm">Active since {profileData.establishmentYear}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Profile Form */}
-        <div className="p-6">
+        {/* Basic Information */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Edit className="w-4 h-4" /> Basic Information
+            </h3>
+            {!isEditing && (
+              <Button
+                onClick={() => setIsEditing(true)}
+                variant="outline"
+                size="sm"
+                className="bg-white/20 hover:bg-white/30 text-gray-700 border-gray-300"
+              >
+                <Edit className="w-4 h-4 mr-1" /> Edit
+              </Button>
+            )}
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField label="Full Name">
+            <FormField label="Restaurant Name">
               {isEditing ? (
                 <Input
-                  name="name"
-                  value={editData.name}
+                  name="restaurantName"
+                  value={editData.restaurantName}
                   onChange={handleChange}
                 />
               ) : (
-                <p className="text-gray-900 py-2">{profileData.name}</p>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <p className="text-lg font-semibold text-gray-900">{profileData.restaurantName}</p>
+                </div>
+              )}
+            </FormField>
+
+            <FormField label="Establishment Year">
+              {isEditing ? (
+                <Input
+                  name="establishmentYear"
+                  value={editData.establishmentYear}
+                  onChange={handleChange}
+                  type="number"
+                />
+              ) : (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <p className="text-lg font-semibold text-gray-900">{profileData.establishmentYear}</p>
+                </div>
+              )}
+            </FormField>
+          </div>
+
+          <div className="mt-6">
+            <FormField label="Cuisine Types">
+              {isEditing ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {cuisines.map((cuisine) => (
+                    <button
+                      key={cuisine}
+                      onClick={() => handleCuisineToggle(cuisine)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                        editData.cuisineTypes.includes(cuisine)
+                          ? "bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md transform scale-105"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-sm"
+                      }`}
+                      title={cuisine}
+                    >
+                      {cuisine}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex flex-wrap gap-2">
+                    {profileData.cuisineTypes.map((cuisine) => (
+                      <span
+                        key={cuisine}
+                        className="bg-gradient-to-r from-red-100 to-orange-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium"
+                      >
+                        {cuisine}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </FormField>
+          </div>
+        </div>
+
+        {/* Contact Details */}
+        <div className="p-6 border-b border-gray-200">
+          <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+            </div>
+            Contact Details
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField label="Phone Number">
+              {isEditing ? (
+                <Input
+                  name="phoneNumber"
+                  value={editData.phoneNumber}
+                  onChange={handleChange}
+                />
+              ) : (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="w-5 h-5 text-gray-400" />
+                    <p className="text-lg font-semibold text-gray-900">{profileData.phoneNumber}</p>
+                  </div>
+                </div>
               )}
             </FormField>
 
             <FormField label="Email Address">
               {isEditing ? (
                 <Input
-                  name="email"
-                  type="email"
-                  value={editData.email}
+                  name="emailAddress"
+                  value={editData.emailAddress}
                   onChange={handleChange}
+                  type="email"
                 />
               ) : (
-                <p className="text-gray-900 py-2">{profileData.email}</p>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-5 h-5 text-gray-400" />
+                    <p className="text-lg font-semibold text-gray-900">{profileData.emailAddress}</p>
+                  </div>
+                </div>
               )}
             </FormField>
 
-            <FormField label="Phone Number">
+            <FormField label="Website">
               {isEditing ? (
                 <Input
-                  name="phone"
-                  value={editData.phone}
+                  name="website"
+                  value={editData.website}
                   onChange={handleChange}
                 />
               ) : (
-                <p className="text-gray-900 py-2">{profileData.phone}</p>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <p className="text-lg font-semibold text-gray-900">{profileData.website}</p>
+                </div>
               )}
             </FormField>
-
-            <FormField label="Role">
-              <p className="text-gray-900 py-2">{profileData.role}</p>
-            </FormField>
           </div>
+        </div>
 
-          <div className="mt-6">
-            <FormField label="Bio">
+        {/* Address */}
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+              <span className="text-lg">📍</span>
+            </div>
+            Address
+          </h3>
+          
+          <div className="space-y-4">
+            <FormField label="Address Line 1">
               {isEditing ? (
-                <Textarea
-                  name="bio"
-                  value={editData.bio}
+                <Input
+                  name="addressLine1"
+                  value={editData.addressLine1}
                   onChange={handleChange}
-                  rows={4}
                 />
               ) : (
-                <p className="text-gray-900 py-2">{profileData.bio}</p>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <p className="text-lg font-semibold text-gray-900">{profileData.addressLine1}</p>
+                </div>
               )}
             </FormField>
-          </div>
 
-          {/* Action Buttons */}
-          {isEditing && (
-            <div className="flex justify-end space-x-4 mt-6 pt-6 border-t border-gray-200">
-              <Button 
-                variant="outline" 
-                onClick={handleCancel}
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleSave}
-                disabled={loading}
-              >
-                {loading ? (
-                  'Saving...'
+            <FormField label="Address Line 2">
+              {isEditing ? (
+                <Input
+                  name="addressLine2"
+                  value={editData.addressLine2}
+                  onChange={handleChange}
+                />
+              ) : (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <p className="text-lg font-semibold text-gray-900">{profileData.addressLine2}</p>
+                </div>
+              )}
+            </FormField>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField label="City">
+                {isEditing ? (
+                  <Input
+                    name="city"
+                    value={editData.city}
+                    onChange={handleChange}
+                  />
                 ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Changes
-                  </>
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <p className="text-lg font-semibold text-gray-900">{profileData.city}</p>
+                  </div>
                 )}
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
+              </FormField>
 
-      {/* Additional Settings */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b border-gray-200">
-            <div>
-              <h4 className="font-medium text-gray-900">Change Password</h4>
-              <p className="text-sm text-gray-500">Update your account password</p>
+              <FormField label="State">
+                {isEditing ? (
+                  <Select
+                    name="state"
+                    value={editData.state}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select State</option>
+                    {states.map(state => (
+                      <option key={state} value={state}>{state}</option>
+                    ))}
+                  </Select>
+                ) : (
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <p className="text-lg font-semibold text-gray-900">{profileData.state}</p>
+                  </div>
+                )}
+              </FormField>
+
+              <FormField label="Pincode">
+                {isEditing ? (
+                  <Input
+                    name="pincode"
+                    value={editData.pincode}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                    <p className="text-lg font-semibold text-gray-900">{profileData.pincode}</p>
+                  </div>
+                )}
+              </FormField>
             </div>
-            <Button variant="outline" size="sm">
-              Change
-            </Button>
-          </div>
-          <div className="flex items-center justify-between py-3 border-b border-gray-200">
-            <div>
-              <h4 className="font-medium text-gray-900">Two-Factor Authentication</h4>
-              <p className="text-sm text-gray-500">Add an extra layer of security</p>
-            </div>
-            <Button variant="outline" size="sm">
-              Enable
-            </Button>
-          </div>
-          <div className="flex items-center justify-between py-3">
-            <div>
-              <h4 className="font-medium text-gray-900">Download Data</h4>
-              <p className="text-sm text-gray-500">Export your account data</p>
-            </div>
-            <Button variant="outline" size="sm">
-              Download
-            </Button>
           </div>
         </div>
+
+        {/* Action Buttons */}
+        {isEditing && (
+          <div className="flex justify-end space-x-4 p-6 border-t border-gray-200 bg-gray-50">
+            <Button 
+              variant="outline" 
+              onClick={handleCancel}
+              className="flex-1 h-12 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-lg rounded-xl"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSave}
+              disabled={loading}
+              className="flex-1 h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold text-lg rounded-xl shadow-lg"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

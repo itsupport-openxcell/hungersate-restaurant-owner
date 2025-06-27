@@ -1,14 +1,23 @@
 import React, { useState } from 'react'
-import { Bell, User, LogOut, ChevronDown } from 'lucide-react'
+import { Bell, User, LogOut, ChevronDown, Package, CreditCard } from 'lucide-react'
 import Button from './Button'
 import Modal from './Modal'
 import NotificationItem from './Notifications/NotificationItem'
+import Pagination from './Pagination'
 
 const Topbar = () => {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [notificationsModal, setNotificationsModal] = useState(false)
   const [activeTab, setActiveTab] = useState("All")
   const [selectedNotification, setSelectedNotification] = useState(null)
+  
+  // Pagination state for each tab
+  const [paginationState, setPaginationState] = useState({
+    All: 1,
+    Order: 1,
+    Payment: 1
+  })
+  const itemsPerPage = 3
 
   const notifications = [
     {
@@ -34,13 +43,57 @@ const Topbar = () => {
       message: "A payment of $45.90 has been successfully confirmed.",
       time: "15m ago",
       amount: "$45.90",
-    }
+    },
+    {
+      id: "4",
+      type: "payment",
+      title: "New Payment",
+      message: "You've received another payment for $45.90.",
+      time: "20m ago",
+      amount: "$45.90",
+    },
+    {
+      id: "5",
+      type: "order",
+      title: "Order Delivered",
+      message: "Order #12346 has been successfully delivered.",
+      time: "30m ago",
+      amount: "$32.50",
+    },
+    {
+      id: "6",
+      type: "order",
+      title: "New order #12347",
+      message: "You have received a new order for $38.75. Tap to view details and accept.",
+      time: "45m ago",
+      amount: "$38.75",
+    },
+    {
+      id: "7",
+      type: "payment",
+      title: "Payment Received",
+      message: "Payment of $38.75 received. View transaction details.",
+      time: "50m ago",
+      amount: "$38.75",
+    },
   ]
 
   const filteredNotifications = notifications.filter((notification) => {
     if (activeTab === "All") return true
     return notification.type === activeTab.toLowerCase()
   })
+
+  const currentPage = paginationState[activeTab]
+  const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedNotifications = filteredNotifications.slice(startIndex, startIndex + itemsPerPage)
+
+  const handlePageChange = (page) => {
+    setPaginationState(prev => ({
+      ...prev,
+      [activeTab]: page
+    }))
+  }
 
   const handleLogout = () => {
     // Dispatch logout event
@@ -141,7 +194,10 @@ const Topbar = () => {
             {["All", "Order", "Payment"].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setActiveTab(tab)
+                  setPaginationState(prev => ({ ...prev, [tab]: 1 })) // Reset to page 1 when changing tabs
+                }}
                 className={`flex-1 py-4 px-6 text-center font-semibold transition-all relative ${
                   activeTab === tab
                     ? "text-red-600 bg-gradient-to-b from-red-50 to-white"
@@ -149,6 +205,9 @@ const Topbar = () => {
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
+                  {tab === "All" && "📋"}
+                  {tab === "Order" && <Package className="w-4 h-4" />}
+                  {tab === "Payment" && <CreditCard className="w-4 h-4" />}
                   {tab}
                 </div>
                 {activeTab === tab && (
@@ -158,20 +217,39 @@ const Topbar = () => {
             ))}
           </div>
 
-          <div className="space-y-4">
-            {filteredNotifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                id={notification.id}
-                type={notification.type}
-                title={notification.title}
-                message={notification.message}
-                time={notification.time}
-                amount={notification.amount}
-                onClick={() => handleNotificationClick(notification)}
+          {filteredNotifications.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl mx-auto mb-6 flex items-center justify-center">
+                <Bell className="w-12 h-12 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-600 mb-2">No notifications yet</h3>
+              <p className="text-gray-500">You're all caught up! 🎉</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {paginatedNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  id={notification.id}
+                  type={notification.type}
+                  title={notification.title}
+                  message={notification.message}
+                  time={notification.time}
+                  amount={notification.amount}
+                  onClick={() => handleNotificationClick(notification)}
+                />
+              ))}
+              
+              {/* Pagination */}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                totalItems={filteredNotifications.length}
+                itemsPerPage={itemsPerPage}
               />
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </Modal>
 
