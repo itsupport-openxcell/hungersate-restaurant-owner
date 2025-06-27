@@ -16,9 +16,15 @@ const MenuList = () => {
   const [showAddForm, setShowAddForm] = useState(false)
   const [showEditForm, setShowEditForm] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
   const [activeTab, setActiveTab] = useState("All")
   const [actionLoading, setActionLoading] = useState({})
+  
+  // Pagination state for each tab
+  const [paginationState, setPaginationState] = useState({
+    All: 1,
+    Veg: 1,
+    "Non-Veg": 1
+  })
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -118,6 +124,46 @@ const MenuList = () => {
       status: "Pending",
       image: "/images/food-placeholder.png",
     },
+    {
+      id: "9",
+      name: "Palak Paneer",
+      description: "Fresh cottage cheese cubes in a creamy spinach gravy with aromatic spices",
+      price: 340,
+      dishType: "Veg",
+      cuisine: "Indian",
+      status: "Available",
+      image: "/images/food-placeholder.png",
+    },
+    {
+      id: "10",
+      name: "Rajma Chawal",
+      description: "Kidney beans curry served with steamed basmati rice",
+      price: 280,
+      dishType: "Veg",
+      cuisine: "Indian",
+      status: "Available",
+      image: "/images/food-placeholder.png",
+    },
+    {
+      id: "11",
+      name: "Chicken Curry",
+      description: "Tender chicken pieces cooked in a rich and flavorful curry sauce",
+      price: 420,
+      dishType: "Non-Veg",
+      cuisine: "Indian",
+      status: "Available",
+      image: "/images/food-placeholder.png",
+    },
+    {
+      id: "12",
+      name: "Fish Fry",
+      description: "Crispy fried fish marinated with spices and herbs",
+      price: 380,
+      dishType: "Non-Veg",
+      cuisine: "Indian",
+      status: "Pending",
+      image: "/images/food-placeholder.png",
+    }
   ])
 
   const categories = ["Veg", "Non-Veg"]
@@ -154,6 +200,7 @@ const MenuList = () => {
 
   const filteredItems = applyFilters(menuItems)
   const itemsPerPage = 6
+  const currentPage = paginationState[activeTab]
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage)
@@ -200,7 +247,7 @@ const MenuList = () => {
   }
 
   const handleApplyFilters = () => {
-    setCurrentPage(1)
+    setPaginationState(prev => ({ ...prev, [activeTab]: 1 }))
     setShowFilters(false)
   }
 
@@ -211,7 +258,17 @@ const MenuList = () => {
       status: "",
       priceRange: { min: "", max: "" }
     })
-    setCurrentPage(1)
+    setPaginationState(prev => ({ ...prev, [activeTab]: 1 }))
+  }
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab)
+    // Reset to page 1 when changing tabs
+    setPaginationState(prev => ({ ...prev, [tab]: 1 }))
+  }
+
+  const handlePageChange = (page) => {
+    setPaginationState(prev => ({ ...prev, [activeTab]: page }))
   }
 
   const getTabCounts = () => ({
@@ -246,10 +303,7 @@ const MenuList = () => {
           {(["All", "Veg", "Non-Veg"]).map((tab) => (
             <button
               key={tab}
-              onClick={() => {
-                setActiveTab(tab)
-                setCurrentPage(1)
-              }}
+              onClick={() => handleTabChange(tab)}
               className={`flex-shrink-0 py-3 px-4 text-center font-medium whitespace-nowrap transition-colors ${
                 activeTab === tab
                   ? "text-red-500 border-b-2 border-red-500 bg-red-50"
@@ -258,7 +312,7 @@ const MenuList = () => {
             >
               <div className="flex items-center gap-2">
                 {tab}
-                {tab !== "All" && tabCounts[tab] > 0 && (
+                {tabCounts[tab] > 0 && (
                   <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">{tabCounts[tab]}</span>
                 )}
               </div>
@@ -278,7 +332,7 @@ const MenuList = () => {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
-                setCurrentPage(1)
+                setPaginationState(prev => ({ ...prev, [activeTab]: 1 }))
               }}
               className="pl-10 h-12 bg-gray-50 border-gray-200 rounded-lg"
             />
@@ -386,6 +440,16 @@ const MenuList = () => {
         )}
       </div>
 
+      {/* Results Summary */}
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-gray-600">
+          Showing {paginatedItems.length} of {filteredItems.length} items in {activeTab} category
+        </p>
+        <p className="text-sm text-gray-500">
+          Page {currentPage} of {totalPages}
+        </p>
+      </div>
+
       {/* Menu Items Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
         {paginatedItems.length === 0 ? (
@@ -468,7 +532,7 @@ const MenuList = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={handlePageChange}
           totalItems={filteredItems.length}
           itemsPerPage={itemsPerPage}
         />

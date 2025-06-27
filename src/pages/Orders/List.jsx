@@ -37,7 +37,7 @@ const OrdersList = () => {
     return () => clearTimeout(timer)
   }, [])
 
-  // Mock data
+  // Mock data with more items for pagination testing
   const [orders, setOrders] = useState({
     new: [
       {
@@ -83,6 +83,32 @@ const OrdersList = () => {
         date: "2024-06-04",
         time: "11:45 AM"
       },
+      {
+        id: "4",
+        orderId: "ORD-1004",
+        customer: "Emma Johnson",
+        items: [
+          { name: "Palak Paneer", quantity: 1, price: 340, image: "/images/food-placeholder.png" },
+          { name: "Roti", quantity: 3, price: 40, image: "/images/food-placeholder.png" },
+        ],
+        amount: 460,
+        status: "new",
+        date: "2024-06-04",
+        time: "11:30 AM"
+      },
+      {
+        id: "5",
+        orderId: "ORD-1005",
+        customer: "Michael Chen",
+        items: [
+          { name: "Fish Curry", quantity: 1, price: 420, image: "/images/food-placeholder.png" },
+          { name: "Steamed Rice", quantity: 1, price: 80, image: "/images/food-placeholder.png" },
+        ],
+        amount: 500,
+        status: "new",
+        date: "2024-06-04",
+        time: "11:15 AM"
+      },
     ],
     ongoing: [
       {
@@ -112,6 +138,19 @@ const OrdersList = () => {
         status: "preparing",
         date: "2024-06-04",
         time: "11:30 AM"
+      },
+      {
+        id: "8",
+        orderId: "ORD-1008",
+        customer: "Alex Rodriguez",
+        items: [
+          { name: "Chicken Biryani", quantity: 1, price: 450, image: "/images/biryani.png" },
+          { name: "Raita", quantity: 1, price: 60, image: "/images/food-placeholder.png" },
+        ],
+        amount: 510,
+        status: "preparing",
+        date: "2024-06-04",
+        time: "11:00 AM"
       },
     ],
     completed: [
@@ -156,14 +195,63 @@ const OrdersList = () => {
         date: "2024-06-04",
         time: "09:45 AM"
       },
+      {
+        id: "12",
+        orderId: "ORD-1012",
+        customer: "Kevin Brown",
+        items: [
+          { name: "Tandoori Chicken", quantity: 1, price: 480, image: "/images/food-placeholder.png" },
+          { name: "Naan", quantity: 2, price: 60, image: "/images/food-placeholder.png" },
+        ],
+        amount: 600,
+        status: "completed",
+        date: "2024-06-04",
+        time: "09:30 AM"
+      },
+      {
+        id: "13",
+        orderId: "ORD-1013",
+        customer: "Amanda Lee",
+        items: [
+          { name: "Vegetable Korma", quantity: 1, price: 320, image: "/images/food-placeholder.png" },
+          { name: "Basmati Rice", quantity: 1, price: 120, image: "/images/food-placeholder.png" },
+        ],
+        amount: 440,
+        status: "completed",
+        date: "2024-06-04",
+        time: "09:15 AM"
+      },
+      {
+        id: "14",
+        orderId: "ORD-1014",
+        customer: "Daniel Garcia",
+        items: [
+          { name: "Mutton Curry", quantity: 1, price: 520, image: "/images/food-placeholder.png" },
+          { name: "Chapati", quantity: 3, price: 30, image: "/images/food-placeholder.png" },
+        ],
+        amount: 610,
+        status: "completed",
+        date: "2024-06-04",
+        time: "09:00 AM"
+      },
     ],
   })
 
-  const itemsPerPage = 2
+  const itemsPerPage = 3
   
   const getCurrentOrders = () => {
     // Apply filters if needed
-    return orders[activeTab] || []
+    let currentOrders = orders[activeTab] || []
+    
+    // Apply search filter
+    if (searchTerm) {
+      currentOrders = currentOrders.filter(order =>
+        order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customer.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+    
+    return currentOrders
   }
   
   const currentOrders = getCurrentOrders()
@@ -182,6 +270,8 @@ const OrdersList = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab)
+    // Reset to page 1 when changing tabs
+    setPaginationState(prev => ({ ...prev, [tab]: 1 }))
   }
 
   const handlePageChange = (page) => {
@@ -321,7 +411,10 @@ const OrdersList = () => {
               type="text"
               placeholder="Search orders, customers..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setPaginationState(prev => ({ ...prev, [activeTab]: 1 }))
+              }}
               className="pl-10 h-12 bg-gray-50 border-gray-200 rounded-lg"
             />
           </div>
@@ -398,6 +491,16 @@ const OrdersList = () => {
         )}
       </div>
 
+      {/* Results Summary */}
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-gray-600">
+          Showing {paginatedOrders.length} of {currentOrders.length} orders in {activeTab} tab
+        </p>
+        <p className="text-sm text-gray-500">
+          Page {currentPage} of {totalPages}
+        </p>
+      </div>
+
       {/* Orders List */}
       <div className="space-y-4">
         {paginatedOrders.length === 0 ? (
@@ -434,6 +537,8 @@ const OrdersList = () => {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h3 className="font-bold text-lg text-gray-900">{order.orderId}</h3>
+                        <p className="text-sm text-gray-600">Customer: {order.customer}</p>
+                        <p className="text-xs text-gray-500">{order.date} at {order.time}</p>
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-gray-900">₹{order.amount}</div>

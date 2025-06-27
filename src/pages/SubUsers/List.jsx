@@ -14,8 +14,15 @@ const SubUsersList = () => {
   const [showEditUser, setShowEditUser] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [activeTab, setActiveTab] = useState("All")
-  const [currentPage, setCurrentPage] = useState(1)
   const [actionLoading, setActionLoading] = useState({})
+  
+  // Pagination state for each tab
+  const [paginationState, setPaginationState] = useState({
+    All: 1,
+    Active: 1,
+    Inactive: 1
+  })
+  
   const itemsPerPage = 5
 
   // Simulate loading
@@ -83,6 +90,46 @@ const SubUsersList = () => {
       phone: "+91 987654327",
       isActive: true
     },
+    {
+      id: "8",
+      name: "Suresh Kumar",
+      role: "Manager",
+      email: "Suresh.kumar@example.com",
+      phone: "+91 987654328",
+      isActive: false
+    },
+    {
+      id: "9",
+      name: "Anjali Verma",
+      role: "Chef",
+      email: "Anjali.verma@example.com",
+      phone: "+91 987654329",
+      isActive: true
+    },
+    {
+      id: "10",
+      name: "Rajesh Gupta",
+      role: "Waiter",
+      email: "Rajesh.gupta@example.com",
+      phone: "+91 987654330",
+      isActive: true
+    },
+    {
+      id: "11",
+      name: "Pooja Sharma",
+      role: "Cashier",
+      email: "Pooja.sharma@example.com",
+      phone: "+91 987654331",
+      isActive: false
+    },
+    {
+      id: "12",
+      name: "Amit Singh",
+      role: "Developer",
+      email: "Amit.singh@example.com",
+      phone: "+91 987654332",
+      isActive: true
+    },
   ])
 
   const filteredUsers = users.filter((user) => {
@@ -99,6 +146,7 @@ const SubUsersList = () => {
     return matchesSearch && matchesStatus
   })
 
+  const currentPage = paginationState[activeTab]
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage)
@@ -125,7 +173,7 @@ const SubUsersList = () => {
     
     // Adjust current page if necessary
     if (paginatedUsers.length === 1 && currentPage > 1) {
-      setCurrentPage(currentPage - 1)
+      setPaginationState(prev => ({ ...prev, [activeTab]: currentPage - 1 }))
     }
     setActionLoading(prev => ({ ...prev, [`delete-${userId}`]: false }))
   }
@@ -133,6 +181,16 @@ const SubUsersList = () => {
   const handleEditUser = (user) => {
     setSelectedUser(user)
     setShowEditUser(true)
+  }
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab)
+    // Reset to page 1 when changing tabs
+    setPaginationState(prev => ({ ...prev, [tab]: 1 }))
+  }
+
+  const handlePageChange = (page) => {
+    setPaginationState(prev => ({ ...prev, [activeTab]: page }))
   }
 
   const getRoleColor = (role) => {
@@ -188,10 +246,7 @@ const SubUsersList = () => {
           {(["All", "Active", "Inactive"]).map((tab) => (
             <button
               key={tab}
-              onClick={() => {
-                setActiveTab(tab)
-                setCurrentPage(1)
-              }}
+              onClick={() => handleTabChange(tab)}
               className={`flex-1 py-4 px-4 text-center font-bold transition-all ${
                 activeTab === tab
                   ? "text-red-500 border-b-2 border-red-500 bg-gradient-to-t from-red-50 to-white"
@@ -218,11 +273,21 @@ const SubUsersList = () => {
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value)
-            setCurrentPage(1)
+            setPaginationState(prev => ({ ...prev, [activeTab]: 1 }))
           }}
           className="pl-12 h-14 bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-200 font-medium"
           aria-label="Search users"
         />
+      </div>
+
+      {/* Results Summary */}
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-gray-600">
+          Showing {paginatedUsers.length} of {filteredUsers.length} users in {activeTab} category
+        </p>
+        <p className="text-sm text-gray-500">
+          Page {currentPage} of {totalPages}
+        </p>
       </div>
 
       {/* Users List */}
@@ -326,7 +391,7 @@ const SubUsersList = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={setCurrentPage}
+          onPageChange={handlePageChange}
           totalItems={filteredUsers.length}
           itemsPerPage={itemsPerPage}
         />
