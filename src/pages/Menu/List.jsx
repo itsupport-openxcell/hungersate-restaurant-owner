@@ -4,8 +4,8 @@ import { Plus, Search, Filter, Edit, ChevronLeft, ChevronRight } from 'lucide-re
 import Button from '../../components/Button'
 import { Input, Select } from '../../components/Form'
 import Modal from '../../components/Modal'
-import toast from 'react-hot-toast'
 import Pagination from '../../components/Pagination'
+import toast from 'react-hot-toast'
 
 const MenuList = () => {
   const navigate = useNavigate()
@@ -280,10 +280,11 @@ const MenuList = () => {
                 <Select
                   value={filters.dishType}
                   onChange={(e) => setFilters({ ...filters, dishType: e.target.value })}
+                  className="text-gray-900"
                 >
-                  <option value="">All Categories</option>
+                  <option value="" className="text-gray-900">All Categories</option>
                   {categories.map((dishType) => (
-                    <option key={dishType} value={dishType}>{dishType}</option>
+                    <option key={dishType} value={dishType} className="text-gray-900">{dishType}</option>
                   ))}
                 </Select>
               </div>
@@ -293,10 +294,11 @@ const MenuList = () => {
                 <Select
                   value={filters.cuisine}
                   onChange={(e) => setFilters({ ...filters, cuisine: e.target.value })}
+                  className="text-gray-900"
                 >
-                  <option value="">All Cuisines</option>
+                  <option value="" className="text-gray-900">All Cuisines</option>
                   {cuisines.map((cuisine) => (
-                    <option key={cuisine} value={cuisine}>{cuisine}</option>
+                    <option key={cuisine} value={cuisine} className="text-gray-900">{cuisine}</option>
                   ))}
                 </Select>
               </div>
@@ -308,10 +310,11 @@ const MenuList = () => {
                 <Select
                   value={filters.status}
                   onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                  className="text-gray-900"
                 >
-                  <option value="">All Status</option>
+                  <option value="" className="text-gray-900">All Status</option>
                   {statuses.map((status) => (
-                    <option key={status} value={status}>{status}</option>
+                    <option key={status} value={status} className="text-gray-900">{status}</option>
                   ))}
                 </Select>
               </div>
@@ -650,7 +653,7 @@ const MenuItemForm = ({
               value={formData.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
               placeholder="Enter dish description"
-              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 min-h-[80px]"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 min-h-[80px]"
               rows={3}
             />
             {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
