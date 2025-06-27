@@ -479,6 +479,7 @@ const MenuList = () => {
         onSave={(item) => handleSaveItem(item, false)}
         categories={categories}
         cuisines={cuisines}
+        statuses={statuses}
         spiceLevels={spiceLevels}
       />
 
@@ -494,6 +495,7 @@ const MenuList = () => {
         isEdit={true}
         categories={categories}
         cuisines={cuisines}
+        statuses={statuses}
         spiceLevels={spiceLevels}
       />
     </div>
@@ -509,6 +511,7 @@ const MenuItemForm = ({
   isEdit = false,
   categories,
   cuisines,
+  statuses,
   spiceLevels
 }) => {
   const [formData, setFormData] = useState({
