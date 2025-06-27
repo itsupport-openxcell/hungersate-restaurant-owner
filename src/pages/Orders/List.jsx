@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { Search, Filter, Eye, X, CheckCircle, Package, ChevronLeft, ChevronRight } from 'lucide-react'
 import Button from '../../components/Button'
 import { Input, Select } from '../../components/Form'
@@ -8,12 +9,17 @@ import { PageLoader, LoadingSpinner } from '../../components/Loader'
 import toast from 'react-hot-toast'
 
 const OrdersList = () => {
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [viewModal, setViewModal] = useState({ isOpen: false, order: null })
-  const [activeTab, setActiveTab] = useState("new")
   const [actionLoading, setActionLoading] = useState({})
+  
+  // Get initial tab from URL parameters or default to "new"
+  const initialTab = searchParams.get('tab') || "new"
+  const [activeTab, setActiveTab] = useState(initialTab)
   
   // Pagination state for each tab
   const [paginationState, setPaginationState] = useState({
@@ -28,6 +34,14 @@ const OrdersList = () => {
     dateRange: { startDate: "", endDate: "" },
     amountRange: { min: "", max: "" }
   })
+
+  // Update active tab when URL changes
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab')
+    if (tabFromUrl && ['new', 'ongoing', 'completed'].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl)
+    }
+  }, [searchParams])
 
   // Simulate loading
   useEffect(() => {

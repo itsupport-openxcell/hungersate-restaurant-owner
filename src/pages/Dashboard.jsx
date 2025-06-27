@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { 
   ShoppingCart, 
   Clock, 
@@ -21,6 +22,7 @@ import Pagination from '../components/Pagination'
 import { PageLoader, CardSkeleton } from '../components/Loader'
 
 const Dashboard = () => {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [notificationsModal, setNotificationsModal] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState(null)
@@ -53,40 +55,44 @@ const Dashboard = () => {
       color: "bg-gradient-to-br from-blue-500 to-blue-600",
       textColor: "text-blue-600",
       bgColor: "bg-blue-50",
-      tab: "past",
+      tab: "completed",
+      route: "/orders"
     },
     {
       title: "New Order Requests",
       value: "12",
       subtitle: "Awaiting confirmation",
-      action: "View requests",
+      action: "View Requests",
       icon: Clock,
       color: "bg-gradient-to-br from-orange-500 to-orange-600",
       textColor: "text-orange-600",
       bgColor: "bg-orange-50",
       tab: "new",
+      route: "/orders"
     },
     {
       title: "Ongoing Orders",
       value: "8",
       subtitle: "Orders in progress",
-      action: "Manage orders",
+      action: "Manage Orders",
       icon: TrendingUp,
       color: "bg-gradient-to-br from-yellow-500 to-yellow-600",
       textColor: "text-yellow-600",
       bgColor: "bg-yellow-50",
       tab: "ongoing",
+      route: "/orders"
     },
     {
       title: "Completed Today",
       value: "8",
       subtitle: "Orders delivered",
-      action: "View history",
+      action: "View History",
       icon: CheckCircle,
       color: "bg-gradient-to-br from-green-500 to-green-600",
       textColor: "text-green-600",
       bgColor: "bg-green-50",
-      tab: "past",
+      tab: "completed",
+      route: "/orders"
     },
   ]
 
@@ -245,8 +251,11 @@ const Dashboard = () => {
     setSelectedNotification(notification)
   }
 
-  const handleCardClick = (tab) => {
-    console.log(`Navigating to orders with tab: ${tab}`)
+  const handleCardClick = (stat) => {
+    // Navigate to the specified route with the tab parameter
+    if (stat.route && stat.tab) {
+      navigate(`${stat.route}?tab=${stat.tab}`)
+    }
   }
 
   if (loading) {
@@ -284,7 +293,7 @@ const Dashboard = () => {
             color={stat.color}
             textColor={stat.textColor}
             bgColor={stat.bgColor}
-            onClick={() => handleCardClick(stat.tab)}
+            onClick={() => handleCardClick(stat)}
           />
         ))}
       </section>
