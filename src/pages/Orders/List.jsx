@@ -1,16 +1,19 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, Filter, Eye, X, CheckCircle, Package, ChevronLeft, ChevronRight } from 'lucide-react'
 import Button from '../../components/Button'
 import { Input, Select } from '../../components/Form'
 import Modal from '../../components/Modal'
 import Pagination from '../../components/Pagination'
+import { PageLoader, LoadingSpinner } from '../../components/Loader'
 import toast from 'react-hot-toast'
 
 const OrdersList = () => {
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [viewModal, setViewModal] = useState({ isOpen: false, order: null })
   const [activeTab, setActiveTab] = useState("new")
+  const [actionLoading, setActionLoading] = useState({})
   
   // Pagination state for each tab
   const [paginationState, setPaginationState] = useState({
@@ -25,6 +28,14 @@ const OrdersList = () => {
     dateRange: { startDate: "", endDate: "" },
     amountRange: { min: "", max: "" }
   })
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1200)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Mock data
   const [orders, setOrders] = useState({
@@ -184,7 +195,12 @@ const OrdersList = () => {
     setViewModal({ isOpen: true, order })
   }
 
-  const handleAcceptOrder = (orderId) => {
+  const handleAcceptOrder = async (orderId) => {
+    setActionLoading(prev => ({ ...prev, [`accept-${orderId}`]: true }))
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
     // Move order from new to ongoing
     const orderIndex = orders.new.findIndex(order => order.id === orderId)
     if (orderIndex !== -1) {
@@ -197,9 +213,15 @@ const OrdersList = () => {
       toast.success(`Order ${acceptedOrder.orderId} accepted successfully!`)
     }
     setViewModal({ isOpen: false, order: null })
+    setActionLoading(prev => ({ ...prev, [`accept-${orderId}`]: false }))
   }
 
-  const handleRejectOrder = (orderId) => {
+  const handleRejectOrder = async (orderId) => {
+    setActionLoading(prev => ({ ...prev, [`reject-${orderId}`]: true }))
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800))
+    
     // Remove order from new
     setOrders(prev => ({
       ...prev,
@@ -207,9 +229,15 @@ const OrdersList = () => {
     }))
     toast.error(`Order rejected`)
     setViewModal({ isOpen: false, order: null })
+    setActionLoading(prev => ({ ...prev, [`reject-${orderId}`]: false }))
   }
 
-  const handleMarkReady = (orderId) => {
+  const handleMarkReady = async (orderId) => {
+    setActionLoading(prev => ({ ...prev, [`ready-${orderId}`]: true }))
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
     // Update order status in ongoing
     setOrders(prev => ({
       ...prev,
@@ -218,6 +246,11 @@ const OrdersList = () => {
       )
     }))
     toast.success(`Order marked ready for pickup!`)
+    setActionLoading(prev => ({ ...prev, [`ready-${orderId}`]: false }))
+  }
+
+  if (loading) {
+    return <PageLoader message="Loading orders..." />
   }
 
   return (
@@ -446,17 +479,31 @@ const OrdersList = () => {
                           <Button
                             onClick={() => handleAcceptOrder(order.id)}
                             className="flex-1 h-11 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-lg shadow-md"
+                            disabled={actionLoading[`accept-${order.id}`]}
                           >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Accept Order
+                            {actionLoading[`accept-${order.id}`] ? (
+                              <LoadingSpinner size="sm" color="white" />
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Accept Order
+                              </>
+                            )}
                           </Button>
                           <Button
                             onClick={() => handleRejectOrder(order.id)}
                             variant="outline"
                             className="flex-1 h-11 border-red-300 text-red-600 hover:bg-red-50 font-medium rounded-lg"
+                            disabled={actionLoading[`reject-${order.id}`]}
                           >
-                            <X className="w-4 h-4 mr-2" />
-                            Reject
+                            {actionLoading[`reject-${order.id}`] ? (
+                              <LoadingSpinner size="sm" />
+                            ) : (
+                              <>
+                                <X className="w-4 h-4 mr-2" />
+                                Reject
+                              </>
+                            )}
                           </Button>
                         </div>
                         <button
@@ -472,9 +519,16 @@ const OrdersList = () => {
                       <Button
                         onClick={() => handleMarkReady(order.id)}
                         className="w-full h-11 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium rounded-lg shadow-md"
+                        disabled={actionLoading[`ready-${order.id}`]}
                       >
-                        <Package className="w-4 h-4 mr-2" />
-                        Mark Ready for Pickup
+                        {actionLoading[`ready-${order.id}`] ? (
+                          <LoadingSpinner size="sm" color="white" />
+                        ) : (
+                          <>
+                            <Package className="w-4 h-4 mr-2" />
+                            Mark Ready for Pickup
+                          </>
+                        )}
                       </Button>
                     )}
 
@@ -559,16 +613,30 @@ const OrdersList = () => {
                     onClick={() => handleRejectOrder(viewModal.order.id)}
                     variant="outline"
                     className="flex-1 h-12 border-red-300 text-red-600 hover:bg-red-50"
+                    disabled={actionLoading[`reject-${viewModal.order.id}`]}
                   >
-                    <X className="w-4 h-4 mr-2" />
-                    Reject Order
+                    {actionLoading[`reject-${viewModal.order.id}`] ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <>
+                        <X className="w-4 h-4 mr-2" />
+                        Reject Order
+                      </>
+                    )}
                   </Button>
                   <Button
                     onClick={() => handleAcceptOrder(viewModal.order.id)}
                     className="flex-1 h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
+                    disabled={actionLoading[`accept-${viewModal.order.id}`]}
                   >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Accept Order
+                    {actionLoading[`accept-${viewModal.order.id}`] ? (
+                      <LoadingSpinner size="sm" color="white" />
+                    ) : (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Accept Order
+                      </>
+                    )}
                   </Button>
                 </div>
               )}

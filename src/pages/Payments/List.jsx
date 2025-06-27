@@ -1,12 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, Copy, Plus, Edit, Trash2, Filter, CreditCard, CheckCircle, X, ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 import Button from '../../components/Button'
 import { Input, Select } from '../../components/Form'
 import Modal from '../../components/Modal'
 import Pagination from '../../components/Pagination'
+import { PageLoader, LoadingSpinner } from '../../components/Loader'
 import toast from 'react-hot-toast'
 
 const PaymentsList = () => {
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("Transaction")
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddBank, setShowAddBank] = useState(false)
@@ -17,7 +19,15 @@ const PaymentsList = () => {
   const [bankToDelete, setBankToDelete] = useState(null)
   const [showCopiedToast, setShowCopiedToast] = useState(false)
   const [copiedText, setCopiedText] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [actionLoading, setActionLoading] = useState({})
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -95,33 +105,33 @@ const PaymentsList = () => {
 
   const confirmDeleteBank = async () => {
     if (bankToDelete) {
-      setLoading(true)
+      setActionLoading(prev => ({ ...prev, [`delete-${bankToDelete.id}`]: true }))
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setBankAccounts((prev) => prev.filter((bank) => bank.id !== bankToDelete.id))
       setShowDeleteDialog(false)
       setBankToDelete(null)
-      setLoading(false)
+      setActionLoading(prev => ({ ...prev, [`delete-${bankToDelete.id}`]: false }))
       toast.success('Bank account deleted successfully')
     }
   }
 
   const handleSaveBank = async (bankData) => {
-    setLoading(true)
+    setActionLoading(prev => ({ ...prev, 'add-bank': true }))
     await new Promise((resolve) => setTimeout(resolve, 1000))
     const newBank = { ...bankData, id: Date.now().toString() }
     setBankAccounts((prev) => [...prev, newBank])
     setShowAddBank(false)
-    setLoading(false)
+    setActionLoading(prev => ({ ...prev, 'add-bank': false }))
     toast.success('Bank account added successfully')
   }
 
   const handleUpdateBank = async (updatedBank) => {
-    setLoading(true)
+    setActionLoading(prev => ({ ...prev, [`edit-${updatedBank.id}`]: true }))
     await new Promise((resolve) => setTimeout(resolve, 1000))
     setBankAccounts((prev) => prev.map((bank) => (bank.id === updatedBank.id ? updatedBank : bank)))
     setShowEditBank(false)
     setSelectedBank(null)
-    setLoading(false)
+    setActionLoading(prev => ({ ...prev, [`edit-${updatedBank.id}`]: false }))
     toast.success('Bank account updated successfully')
   }
 
@@ -142,6 +152,10 @@ const PaymentsList = () => {
 
   const maskAccountNumber = (accountNumber) =>
     accountNumber.length <= 4 ? accountNumber : "XXXXXX" + accountNumber.slice(-4)
+
+  if (loading) {
+    return <PageLoader message="Loading payments..." />
+  }
 
   return (
     <div className="space-y-6">
@@ -363,17 +377,31 @@ const PaymentsList = () => {
                           onClick={() => handleEditBank(bank)}
                           variant="outline"
                           className="flex-1 h-12 border-2 border-blue-300 text-blue-700 hover:bg-blue-50 font-semibold rounded-xl"
+                          disabled={actionLoading[`edit-${bank.id}`]}
                         >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit
+                          {actionLoading[`edit-${bank.id}`] ? (
+                            <LoadingSpinner size="sm" />
+                          ) : (
+                            <>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </>
+                          )}
                         </Button>
                         <Button
                           onClick={() => handleDeleteBank(bank)}
                           variant="outline"
                           className="flex-1 h-12 border-2 border-red-300 text-red-600 hover:bg-red-50 font-semibold rounded-xl"
+                          disabled={actionLoading[`delete-${bank.id}`]}
                         >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
+                          {actionLoading[`delete-${bank.id}`] ? (
+                            <LoadingSpinner size="sm" />
+                          ) : (
+                            <>
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -397,7 +425,8 @@ const PaymentsList = () => {
       <AddBankForm 
         isOpen={showAddBank} 
         onClose={() => setShowAddBank(false)} 
-        onSave={handleSaveBank} 
+        onSave={handleSaveBank}
+        loading={actionLoading['add-bank']}
       />
 
       {/* Edit Bank Form Modal */}
@@ -409,6 +438,7 @@ const PaymentsList = () => {
         }}
         onSave={handleUpdateBank}
         bankAccount={selectedBank}
+        loading={actionLoading[`edit-${selectedBank?.id}`]}
       />
 
       {/* Delete Confirmation Modal */}
@@ -420,6 +450,7 @@ const PaymentsList = () => {
         }}
         onConfirm={confirmDeleteBank}
         bankName={bankToDelete?.bankName || ""}
+        loading={actionLoading[`delete-${bankToDelete?.id}`]}
       />
 
       {/* Transaction Filter Modal */}
@@ -451,7 +482,7 @@ const PaymentsList = () => {
 }
 
 // Add Bank Form Component
-const AddBankForm = ({ isOpen, onClose, onSave }) => {
+const AddBankForm = ({ isOpen, onClose, onSave, loading = false }) => {
   const [formData, setFormData] = useState({
     bankName: "",
     accountNumber: "",
@@ -593,8 +624,19 @@ const AddBankForm = ({ isOpen, onClose, onSave }) => {
         <Button onClick={onClose} variant="outline" className="px-4 py-2">
           Cancel
         </Button>
-        <Button onClick={handleSave} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2">
-          Save Bank Account
+        <Button 
+          onClick={handleSave} 
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="sm" color="white" />
+              Saving...
+            </div>
+          ) : (
+            "Save Bank Account"
+          )}
         </Button>
       </div>
     </Modal>
@@ -602,7 +644,7 @@ const AddBankForm = ({ isOpen, onClose, onSave }) => {
 }
 
 // Edit Bank Form Component
-const EditBankForm = ({ isOpen, onClose, onSave, bankAccount }) => {
+const EditBankForm = ({ isOpen, onClose, onSave, bankAccount, loading = false }) => {
   const [formData, setFormData] = useState({
     bankName: "",
     accountNumber: "",
@@ -749,11 +791,26 @@ const EditBankForm = ({ isOpen, onClose, onSave, bankAccount }) => {
       </div>
 
       <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-        <Button onClick={onClose} variant="outline" className="px-4 py-2">
+        <Button
+          onClick={onClose}
+          variant="outline"
+          className="px-4 py-2"
+        >
           Cancel
         </Button>
-        <Button onClick={handleSave} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2">
-          Update Bank Account
+        <Button 
+          onClick={handleSave} 
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="sm" color="white" />
+              Updating...
+            </div>
+          ) : (
+            "Update Bank Account"
+          )}
         </Button>
       </div>
     </Modal>
@@ -761,7 +818,7 @@ const EditBankForm = ({ isOpen, onClose, onSave, bankAccount }) => {
 }
 
 // Delete Confirmation Dialog Component
-const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, bankName }) => {
+const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, bankName, loading = false }) => {
   if (!isOpen) return null
 
   return (
@@ -794,8 +851,16 @@ const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, bankName }) => {
         <Button 
           onClick={onConfirm} 
           className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+          disabled={loading}
         >
-          Delete Account
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="sm" color="white" />
+              Deleting...
+            </div>
+          ) : (
+            "Delete Account"
+          )}
         </Button>
       </div>
     </Modal>

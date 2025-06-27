@@ -1,19 +1,30 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, Search, Edit, Trash2, User, ChevronLeft, ChevronRight } from 'lucide-react'
 import Button from '../../components/Button'
 import { Input, Select, FormField } from '../../components/Form'
 import Modal from '../../components/Modal'
 import Pagination from '../../components/Pagination'
+import { PageLoader, LoadingSpinner } from '../../components/Loader'
 import toast from 'react-hot-toast'
 
 const SubUsersList = () => {
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddUser, setShowAddUser] = useState(false)
   const [showEditUser, setShowEditUser] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [activeTab, setActiveTab] = useState("All")
   const [currentPage, setCurrentPage] = useState(1)
+  const [actionLoading, setActionLoading] = useState({})
   const itemsPerPage = 5
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1200)
+    return () => clearTimeout(timer)
+  }, [])
 
   const [users, setUsers] = useState([
     {
@@ -92,12 +103,23 @@ const SubUsersList = () => {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage)
 
-  const handleToggleUser = (userId) => {
+  const handleToggleUser = async (userId) => {
+    setActionLoading(prev => ({ ...prev, [`toggle-${userId}`]: true }))
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 800))
+    
     setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, isActive: !user.isActive } : user)))
     toast.success('User status updated successfully')
+    setActionLoading(prev => ({ ...prev, [`toggle-${userId}`]: false }))
   }
 
-  const handleDeleteUser = (userId) => {
+  const handleDeleteUser = async (userId) => {
+    setActionLoading(prev => ({ ...prev, [`delete-${userId}`]: true }))
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
     setUsers((prev) => prev.filter((user) => user.id !== userId))
     toast.success('User deleted successfully')
     
@@ -105,6 +127,7 @@ const SubUsersList = () => {
     if (paginatedUsers.length === 1 && currentPage > 1) {
       setCurrentPage(currentPage - 1)
     }
+    setActionLoading(prev => ({ ...prev, [`delete-${userId}`]: false }))
   }
 
   const handleEditUser = (user) => {
@@ -140,6 +163,10 @@ const SubUsersList = () => {
   }
 
   const statusCounts = getStatusCounts()
+
+  if (loading) {
+    return <PageLoader message="Loading users..." />
+  }
 
   return (
     <div className="space-y-6">
@@ -261,20 +288,30 @@ const SubUsersList = () => {
                           checked={user.isActive}
                           onChange={() => handleToggleUser(user.id)}
                           className="sr-only peer"
+                          disabled={actionLoading[`toggle-${user.id}`]}
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
                       </label>
                       <span
                         className={`text-xs font-bold px-2 py-1 rounded-full ${user.isActive ? "text-green-700 bg-green-100" : "text-red-700 bg-red-100"}`}
                       >
-                        {user.isActive ? "Active" : "Inactive"}
+                        {actionLoading[`toggle-${user.id}`] ? (
+                          <LoadingSpinner size="sm" />
+                        ) : (
+                          user.isActive ? "Active" : "Inactive"
+                        )}
                       </span>
                     </div>
                     <button
                       onClick={() => handleDeleteUser(user.id)}
                       className="text-red-500 hover:text-red-700 p-3 hover:bg-red-50 rounded-xl transition-all shadow-sm border border-red-200"
+                      disabled={actionLoading[`delete-${user.id}`]}
                     >
-                      <Trash2 className="w-5 h-5" />
+                      {actionLoading[`delete-${user.id}`] ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        <Trash2 className="w-5 h-5" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -336,6 +373,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
   })
 
   const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
 
   const roles = ["Manager", "Chef", "Designer", "Developer", "Marketing Specialist", "Waiter", "Cashier"]
 
@@ -360,8 +398,13 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
+      setSaving(true)
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       onAddUser(formData)
       // Reset form
       setFormData({
@@ -372,6 +415,7 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
         isActive: true,
       })
       setErrors({})
+      setSaving(false)
     }
   }
 
@@ -446,8 +490,19 @@ const AddUserModal = ({ isOpen, onClose, onAddUser }) => {
         <Button onClick={onClose} variant="outline" className="px-4 py-2">
           Cancel
         </Button>
-        <Button onClick={handleSubmit} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2">
-          Add User
+        <Button 
+          onClick={handleSubmit} 
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+          disabled={saving}
+        >
+          {saving ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="sm" color="white" />
+              Adding...
+            </div>
+          ) : (
+            "Add User"
+          )}
         </Button>
       </div>
     </Modal>
@@ -465,6 +520,7 @@ const EditUserModal = ({ isOpen, user, onClose, onUpdateUser }) => {
   })
 
   const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
 
   const roles = ["Manager", "Chef", "Designer", "Developer", "Marketing Specialist", "Waiter", "Cashier"]
 
@@ -502,12 +558,18 @@ const EditUserModal = ({ isOpen, user, onClose, onUpdateUser }) => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm() && user) {
+      setSaving(true)
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       onUpdateUser({
         ...user,
         ...formData,
       })
+      setSaving(false)
     }
   }
 
@@ -583,8 +645,19 @@ const EditUserModal = ({ isOpen, user, onClose, onUpdateUser }) => {
         <Button onClick={onClose} variant="outline" className="px-4 py-2">
           Cancel
         </Button>
-        <Button onClick={handleSubmit} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2">
-          Update User
+        <Button 
+          onClick={handleSubmit} 
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+          disabled={saving}
+        >
+          {saving ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="sm" color="white" />
+              Updating...
+            </div>
+          ) : (
+            "Update User"
+          )}
         </Button>
       </div>
     </Modal>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   ShoppingCart, 
   Clock, 
@@ -18,8 +18,10 @@ import Modal from '../components/Modal'
 import NotificationItem from '../components/Notifications/NotificationItem'
 import Button from '../components/Button'
 import Pagination from '../components/Pagination'
+import { PageLoader, CardSkeleton } from '../components/Loader'
 
 const Dashboard = () => {
+  const [loading, setLoading] = useState(true)
   const [notificationsModal, setNotificationsModal] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [activeTab, setActiveTab] = useState("All")
@@ -31,6 +33,14 @@ const Dashboard = () => {
     Payment: 1
   })
   const itemsPerPage = 3
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   const STATS = [
     {
@@ -237,6 +247,10 @@ const Dashboard = () => {
 
   const handleCardClick = (tab) => {
     console.log(`Navigating to orders with tab: ${tab}`)
+  }
+
+  if (loading) {
+    return <PageLoader message="Loading dashboard..." />
   }
 
   return (

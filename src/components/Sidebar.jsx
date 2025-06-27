@@ -13,16 +13,41 @@ import {
 } from 'lucide-react'
 
 const Sidebar = () => {
-  const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-    { icon: Menu, label: "Menu Management", path: "/menu" },
-    { icon: ShoppingCart, label: "Orders", path: "/orders" },
-    { icon: CreditCard, label: "Payments", path: "/payments" },
-    { icon: Users, label: "Sub Users", path: "/sub-users" },
-    { icon: User, label: "Profile", path: "/profile" },
-    { icon: Clock, label: "Pickup Management", path: "/pickup" },
-    { icon: HelpCircle, label: "Help & Support", path: "/help" },
-    { icon: Settings, label: "Settings", path: "/settings" },
+  const menuSections = [
+    {
+      title: "📊 Dashboard",
+      items: [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" }
+      ]
+    },
+    {
+      title: "🍽️ Restaurant Operations", 
+      items: [
+        { icon: Menu, label: "Menu Management", path: "/menu" },
+        { icon: ShoppingCart, label: "Orders", path: "/orders" },
+        { icon: Clock, label: "Pickup Management", path: "/pickup" }
+      ]
+    },
+    {
+      title: "💼 Financials",
+      items: [
+        { icon: CreditCard, label: "Payments", path: "/payments" }
+      ]
+    },
+    {
+      title: "👥 User Management",
+      items: [
+        { icon: Users, label: "Sub Users", path: "/sub-users" },
+        { icon: User, label: "Profile", path: "/profile" }
+      ]
+    },
+    {
+      title: "⚙️ Support & Settings",
+      items: [
+        { icon: HelpCircle, label: "Help & Support", path: "/help" },
+        { icon: Settings, label: "Settings", path: "/settings" }
+      ]
+    }
   ]
 
   return (
@@ -48,25 +73,39 @@ const Sidebar = () => {
       {/* Navigation */}
       <nav className="mt-6 pb-6">
         <div className="px-3">
-          {menuItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center px-3 py-3 mb-1 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-red-50 text-red-600 border-r-2 border-red-600'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`
-                }
-              >
-                <Icon className="w-5 h-5 mr-3" />
-                {item.label}
-              </NavLink>
-            )
-          })}
+          {menuSections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="mb-6">
+              {/* Section Title */}
+              <div className="px-3 mb-3">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  {section.title}
+                </h3>
+              </div>
+              
+              {/* Section Items */}
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      className={({ isActive }) =>
+                        `flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors ${
+                          isActive
+                            ? 'bg-red-50 text-red-600 border-r-2 border-red-600'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        }`
+                      }
+                    >
+                      <Icon className="w-5 h-5 mr-3" />
+                      {item.label}
+                    </NavLink>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </nav>
     </div>

@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Search, Filter, Edit, ChevronLeft, ChevronRight } from 'lucide-react'
 import Button from '../../components/Button'
 import { Input, Select } from '../../components/Form'
 import Modal from '../../components/Modal'
 import Pagination from '../../components/Pagination'
+import { PageLoader, CardSkeleton, LoadingSpinner } from '../../components/Loader'
 import toast from 'react-hot-toast'
 
 const MenuList = () => {
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showFilters, setShowFilters] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -16,6 +18,7 @@ const MenuList = () => {
   const [selectedItem, setSelectedItem] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [activeTab, setActiveTab] = useState("All")
+  const [actionLoading, setActionLoading] = useState({})
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -24,6 +27,14 @@ const MenuList = () => {
     status: "",
     priceRange: { min: "", max: "" }
   })
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Mock data
   const [menuItems, setMenuItems] = useState([
@@ -160,16 +171,22 @@ const MenuList = () => {
     }
   }
 
-  const handleEditItem = (item) => {
+  const handleEditItem = async (item) => {
+    setActionLoading(prev => ({ ...prev, [item.id]: true }))
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
     setSelectedItem(item)
     setShowEditForm(true)
+    setActionLoading(prev => ({ ...prev, [item.id]: false }))
   }
 
   const handleAddItem = () => {
     setShowAddForm(true)
   }
 
-  const handleSaveItem = (item, isEdit = false) => {
+  const handleSaveItem = async (item, isEdit = false) => {
     if (isEdit && selectedItem) {
       setMenuItems(prev => prev.map(i => i.id === selectedItem.id ? { ...item, id: selectedItem.id } : i))
       toast.success(`${item.name} updated successfully`)
@@ -204,6 +221,10 @@ const MenuList = () => {
   })
 
   const tabCounts = getTabCounts()
+
+  if (loading) {
+    return <PageLoader message="Loading menu items..." />
+  }
 
   return (
     <div className="space-y-6">
@@ -425,9 +446,16 @@ const MenuList = () => {
                   onClick={() => handleEditItem(item)}
                   variant="outline"
                   className="w-full h-9 text-blue-600 border-blue-200 hover:bg-blue-50"
+                  disabled={actionLoading[item.id]}
                 >
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
+                  {actionLoading[item.id] ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    <>
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -500,6 +528,7 @@ const MenuItemForm = ({
   })
 
   const [errors, setErrors] = useState({})
+  const [saving, setSaving] = useState(false)
 
   // Initialize form with item data if editing
   React.useEffect(() => {
@@ -552,8 +581,13 @@ const MenuItemForm = ({
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
+      setSaving(true)
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       onSave({
         name: formData.name,
         description: formData.description,
@@ -564,6 +598,8 @@ const MenuItemForm = ({
         spiceLevel: formData.spiceLevel,
         image: formData.image || "/images/food-placeholder.png"
       })
+      
+      setSaving(false)
     }
   }
 
@@ -744,8 +780,19 @@ const MenuItemForm = ({
         <Button onClick={onClose} variant="outline" className="px-4 py-2">
           Cancel
         </Button>
-        <Button onClick={handleSubmit} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2">
-          {isEdit ? "Update Dish" : "Add Dish"}
+        <Button 
+          onClick={handleSubmit} 
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2"
+          disabled={saving}
+        >
+          {saving ? (
+            <div className="flex items-center gap-2">
+              <LoadingSpinner size="sm" color="white" />
+              {isEdit ? "Updating..." : "Adding..."}
+            </div>
+          ) : (
+            isEdit ? "Update Dish" : "Add Dish"
+          )}
         </Button>
       </div>
     </Modal>
