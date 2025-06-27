@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Upload } from 'lucide-react'
+import { ArrowLeft, Upload, Camera } from 'lucide-react'
 import Button from '../../components/Button'
 import { FormField, Input, Textarea, Select } from '../../components/Form'
 import toast from 'react-hot-toast'
@@ -14,9 +14,10 @@ const MenuForm = () => {
     name: '',
     description: '',
     price: '',
+    dishType: '',
     cuisine: '',
-    category: '',
     status: 'Available',
+    spiceLevel: '',
     image: ''
   })
 
@@ -31,9 +32,10 @@ const MenuForm = () => {
         name: "Paneer Tikka",
         description: "Marinated cottage cheese cubes grilled to perfection",
         price: "320",
+        dishType: "Veg",
         cuisine: "Indian",
-        category: "Veg",
         status: "Available",
+        spiceLevel: "medium",
         image: "/images/paneer-tikka.png"
       }
       setFormData(mockData)
@@ -41,8 +43,14 @@ const MenuForm = () => {
   }, [isEdit])
 
   const cuisines = ["Indian", "Chinese", "Italian", "Mexican", "Thai", "Continental"]
-  const categories = ["Veg", "Non-Veg", "Vegan", "Jain"]
-  const statuses = ["Available", "Unavailable"]
+  const dishTypes = ["Veg", "Non-Veg"]
+  const statuses = ["Available", "Unavailable", "Pending"]
+  const spiceLevels = [
+    { value: "mild", label: "Mild" },
+    { value: "medium", label: "Medium" },
+    { value: "spicy", label: "Spicy" },
+    { value: "very-spicy", label: "Very Spicy" },
+  ]
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -67,12 +75,12 @@ const MenuForm = () => {
       newErrors.price = 'Valid price is required'
     }
 
-    if (!formData.cuisine) {
-      newErrors.cuisine = 'Cuisine is required'
+    if (!formData.dishType) {
+      newErrors.dishType = 'Dish type is required'
     }
 
-    if (!formData.category) {
-      newErrors.category = 'Category is required'
+    if (!formData.cuisine) {
+      newErrors.cuisine = 'Cuisine is required'
     }
 
     setErrors(newErrors)
@@ -125,107 +133,128 @@ const MenuForm = () => {
       {/* Form */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Name */}
-            <FormField label="Item Name" error={errors.name} required>
-              <Input
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter item name"
-              />
-            </FormField>
-
-            {/* Price */}
-            <FormField label="Price (₹)" error={errors.price} required>
-              <Input
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="Enter price"
-                min="0"
-                step="0.01"
-              />
-            </FormField>
-
-            {/* Cuisine */}
-            <FormField label="Cuisine" error={errors.cuisine} required>
-              <Select
-                name="cuisine"
-                value={formData.cuisine}
-                onChange={handleChange}
-              >
-                <option value="">Select cuisine</option>
-                {cuisines.map(cuisine => (
-                  <option key={cuisine} value={cuisine}>{cuisine}</option>
-                ))}
-              </Select>
-            </FormField>
-
-            {/* Category */}
-            <FormField label="Category" error={errors.category} required>
-              <Select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-              >
-                <option value="">Select category</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </Select>
-            </FormField>
-
-            {/* Status */}
-            <FormField label="Status" required>
-              <Select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                {statuses.map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </Select>
+          {/* Dish Image */}
+          <div>
+            <FormField label="Dish Image">
+              <div className="mt-1 flex items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
+                {formData.image ? (
+                  <div className="relative w-full h-full">
+                    <img
+                      src={formData.image}
+                      alt="Dish preview"
+                      className="w-full h-full object-cover rounded-xl"
+                      onError={(e) => {
+                        e.target.src = "/images/food-placeholder.png"
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 rounded-xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <Camera className="h-8 w-8 text-white" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <p className="mt-1 text-sm text-gray-500">Upload dish image</p>
+                    <p className="text-xs text-gray-400">PNG, JPG up to 10MB</p>
+                  </div>
+                )}
+              </div>
             </FormField>
           </div>
 
-          {/* Description */}
-          <FormField label="Description" error={errors.description} required>
-            <Textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Enter item description"
-              rows={4}
-            />
-          </FormField>
+          {/* Basic Information */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField label="Dish Name" error={errors.name} required>
+                <Input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter dish name"
+                />
+              </FormField>
 
-          {/* Image Upload */}
-          <FormField label="Image">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400" />
-              <div className="mt-4">
-                <label htmlFor="image-upload" className="cursor-pointer">
-                  <span className="mt-2 block text-sm font-medium text-gray-900">
-                    Upload an image
-                  </span>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    className="sr-only"
-                    accept="image/*"
-                    onChange={(e) => {
-                      // Handle file upload
-                      console.log('File selected:', e.target.files[0])
-                    }}
-                  />
-                </label>
-                <p className="mt-1 text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-              </div>
+              <FormField label="Price (₹)" error={errors.price} required>
+                <Input
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  placeholder="Enter price"
+                  min="0"
+                  step="0.01"
+                />
+              </FormField>
             </div>
-          </FormField>
+
+            <FormField label="Description" error={errors.description} required className="mt-4">
+              <Textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Enter dish description"
+                rows={4}
+              />
+            </FormField>
+          </div>
+
+          {/* DishType & Classification */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">DishType & Classification</h3>
+            <div className="grid grid-cols-2 gap-6">
+              <FormField label="Dish Type" error={errors.dishType} required>
+                <Select
+                  name="dishType"
+                  value={formData.dishType}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Dish Type</option>
+                  {dishTypes.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </Select>
+              </FormField>
+
+              <FormField label="Cuisine" error={errors.cuisine} required>
+                <Select
+                  name="cuisine"
+                  value={formData.cuisine}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Cuisine</option>
+                  {cuisines.map((cuisine) => (
+                    <option key={cuisine} value={cuisine}>{cuisine}</option>
+                  ))}
+                </Select>
+              </FormField>
+
+              <FormField label="Status">
+                <Select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                >
+                  {statuses.map((status) => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </Select>
+              </FormField>
+
+              <FormField label="Spice Level">
+                <Select
+                  name="spiceLevel"
+                  value={formData.spiceLevel}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Spice Level</option>
+                  {spiceLevels.map((level) => (
+                    <option key={level.value} value={level.value}>{level.label}</option>
+                  ))}
+                </Select>
+              </FormField>
+            </div>
+          </div>
 
           {/* Form Actions */}
           <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">

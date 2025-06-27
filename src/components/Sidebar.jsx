@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom'
 import { 
   LayoutDashboard, 
   Menu, 
-  Building2, 
   ShoppingCart, 
   CreditCard, 
   Users, 
@@ -17,7 +16,6 @@ const Sidebar = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
     { icon: Menu, label: "Menu Management", path: "/menu" },
-    { icon: Building2, label: "Restaurants", path: "/restaurants" },
     { icon: ShoppingCart, label: "Orders", path: "/orders" },
     { icon: CreditCard, label: "Payments", path: "/payments" },
     { icon: Users, label: "Sub Users", path: "/sub-users" },

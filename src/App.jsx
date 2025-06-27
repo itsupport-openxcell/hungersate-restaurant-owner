@@ -7,8 +7,6 @@ import OtpPage from './pages/Auth/OtpPage'
 import Dashboard from './pages/Dashboard'
 import MenuList from './pages/Menu/List'
 import MenuForm from './pages/Menu/Form'
-import RestaurantList from './pages/Restaurants/List'
-import RestaurantForm from './pages/Restaurants/Form'
 import OrdersList from './pages/Orders/List'
 import PaymentsList from './pages/Payments/List'
 import SubUsersList from './pages/SubUsers/List'
@@ -91,11 +89,6 @@ function App() {
           <Route path="/menu" element={<AdminLayout><MenuList /></AdminLayout>} />
           <Route path="/menu/add" element={<AdminLayout><MenuForm /></AdminLayout>} />
           <Route path="/menu/edit/:id" element={<AdminLayout><MenuForm /></AdminLayout>} />
-          
-          {/* Restaurant Management */}
-          <Route path="/restaurants" element={<AdminLayout><RestaurantList /></AdminLayout>} />
-          <Route path="/restaurants/add" element={<AdminLayout><RestaurantForm /></AdminLayout>} />
-          <Route path="/restaurants/edit/:id" element={<AdminLayout><RestaurantForm /></AdminLayout>} />
           
           {/* Orders */}
           <Route path="/orders" element={<AdminLayout><OrdersList /></AdminLayout>} />
